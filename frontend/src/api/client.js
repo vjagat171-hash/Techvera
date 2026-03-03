@@ -1,27 +1,30 @@
+// frontend/src/api/client.js
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL;
+// 1) Base URL: env first, fallback localhost
+const API = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
-// ✅ Axios client with token interceptor
+// 2) Axios client
 const client = axios.create({
-  baseURL: API, // Apna backend URL env se aayega
+  baseURL: API,
 });
 
+// 3) Token interceptor (Bearer token)
 client.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  const token = localStorage.getItem("tv_token") || localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// ✅ Fetch wrapper function
+// 4) Fetch wrapper function (optional use)
 export async function api(path, { method = "GET", body, token } = {}) {
+  const authToken = token || localStorage.getItem("tv_token") || localStorage.getItem("token");
+
   const res = await fetch(`${API}${path}`, {
     method,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,
   });

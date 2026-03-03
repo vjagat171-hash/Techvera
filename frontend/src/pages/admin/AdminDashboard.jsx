@@ -1,5 +1,5 @@
 // frontend/src/pages/admin/AdminDashboard.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/client";
 import {
@@ -8,38 +8,54 @@ import {
   FaUsers,
   FaCogs,
   FaSignOutAlt,
+  FaTimes,
 } from "react-icons/fa";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("projects");
+
+  // For projects/services/blogs
   const [data, setData] = useState([]);
+
+  // For leads
   const [leads, setLeads] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  // token: aapke first code me key "tv_token" tha, yaha fallback bhi de diya
-  const token = localStorage.getItem("tv_token") || localStorage.getItem("token");
+  // Modal
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({});
 
-  // Logout Function
+  // Token fallback (as in your first code)
+  const token =
+    localStorage.getItem("tv_token") || localStorage.getItem("token");
+
+  const isCrudTab = useMemo(
+    () => activeTab === "projects" || activeTab === "services" || activeTab === "blogs",
+    [activeTab]
+  );
+
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("tv_token");
     navigate("/admin");
   };
 
-  // Fetch Data based on active tab
+  // Fetch Data
   const fetchData = async () => {
     setLoading(true);
     setErr("");
 
     try {
-      // Leads tab: aapka custom api() helper use hoga (token ke sath)
       if (activeTab === "leads") {
+        // Your custom helper usage with token (as in first code)
         const leadsData = await api("/api/leads", { token });
         setLeads(Array.isArray(leadsData) ? leadsData : []);
-        setData([]); // clean
+        setData([]);
         setLoading(false);
         return;
       }
@@ -52,12 +68,12 @@ const AdminDashboard = () => {
 
       const res = await api.get(endpoint);
       setData(res.data || []);
-      setLeads([]); // clean
+      setLeads([]);
     } catch (error) {
       console.error("Error fetching data", error);
       setErr(error?.message || "Something went wrong");
 
-      if (error?.response?.status === 401) handleLogout(); // token expire
+      if (error?.response?.status === 401) handleLogout();
     }
 
     setLoading(false);
@@ -73,19 +89,148 @@ const AdminDashboard = () => {
     if (!window.confirm("Are you sure you want to delete this?")) return;
 
     try {
-      // NOTE: leads delete ka endpoint aapke backend pe depend karta hai.
-      // Abhi aapke existing logic ke according:
-      // projects -> /projects/:id, blogs -> /blogs/:id, services -> /services/:id
       if (activeTab === "leads") {
-        alert("Leads delete endpoint set nahi hai. Backend route add karke yaha update karo.");
+        alert(
+          "Leads delete endpoint set nahi hai. Backend route add karke yaha update karo."
+        );
         return;
       }
 
+      // projects -> /projects/:id, blogs -> /blogs/:id, services -> /services/:id
       await api.delete(`/${activeTab}/${id}`);
       fetchData();
     } catch (error) {
       alert("Error deleting item");
     }
+  };
+
+  // Modal open
+  const openModal = () => {
+    setFormData({});
+    setShowModal(true);
+  };
+
+  // Form change
+  const handleInputChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  // Submit (Add New)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      if (!isCrudTab) return;
+
+      await api.post(`/${activeTab}`, formData);
+      setShowModal(false);
+      setFormData({});
+      fetchData();
+      alert(`${activeTab} added successfully!`);
+    } catch (error) {
+      console.error(error);
+      alert("Error saving data. Please check fields.");
+    }
+  };
+
+  // Dynamic Form Fields
+  const renderFormFields = () => {
+    if (activeTab === "projects") {
+      return (
+        <>
+          <input
+            type="text"
+            name="title"
+            placeholder="Project Title"
+            onChange={handleInputChange}
+            required
+            className="w-full p-2 border rounded mb-3"
+          />
+          <textarea
+            name="description"
+            placeholder="Project Description"
+            onChange={handleInputChange}
+            required
+            className="w-full p-2 border rounded mb-3"
+          />
+          <input
+            type="text"
+            name="imageUrl"
+            placeholder="Image URL (http://...)"
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded mb-3"
+          />
+          <input
+            type="text"
+            name="liveLink"
+            placeholder="Live Website Link"
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded mb-3"
+          />
+          <input
+            type="text"
+            name="category"
+            placeholder="Category (e.g. Web Dev, SEO)"
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded mb-3"
+          />
+        </>
+      );
+    }
+
+    if (activeTab === "services") {
+      return (
+        <>
+          <input
+            type="text"
+            name="title"
+            placeholder="Service Name"
+            onChange={handleInputChange}
+            required
+            className="w-full p-2 border rounded mb-3"
+          />
+          <textarea
+            name="description"
+            placeholder="Service Description"
+            onChange={handleInputChange}
+            required
+            className="w-full p-2 border rounded mb-3"
+          />
+        </>
+      );
+    }
+
+    if (activeTab === "blogs") {
+      return (
+        <>
+          <input
+            type="text"
+            name="title"
+            placeholder="Blog Title"
+            onChange={handleInputChange}
+            required
+            className="w-full p-2 border rounded mb-3"
+          />
+          <input
+            type="text"
+            name="author"
+            placeholder="Author Name"
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded mb-3"
+          />
+          <textarea
+            name="content"
+            placeholder="Blog Content..."
+            rows="5"
+            onChange={handleInputChange}
+            required
+            className="w-full p-2 border rounded mb-3"
+          />
+        </>
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -145,15 +290,18 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white shadow p-4 flex justify-between items-center">
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+        <header className="bg-white shadow p-4 flex justify-between items-center z-10">
           <h2 className="text-2xl font-semibold text-gray-800 capitalize">
             Manage {activeTab}
           </h2>
 
           {activeTab !== "leads" && (
-            <button className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
-              + Add New
+            <button
+              onClick={openModal}
+              className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
+            >
+              + Add New {activeTab.slice(0, -1)}
             </button>
           )}
         </header>
@@ -171,7 +319,7 @@ const AdminDashboard = () => {
             </div>
           ) : (
             <div className="bg-white shadow rounded-lg p-4">
-              {/* LEADS VIEW (your first code UI) */}
+              {/* LEADS VIEW (from your first code) */}
               {activeTab === "leads" ? (
                 <div style={{ maxWidth: 900, margin: "0 auto" }}>
                   <h2 className="text-xl font-semibold mb-3">Leads</h2>
@@ -179,10 +327,7 @@ const AdminDashboard = () => {
                   <table
                     border="1"
                     cellPadding="8"
-                    style={{
-                      width: "100%",
-                      borderCollapse: "collapse",
-                    }}
+                    style={{ width: "100%", borderCollapse: "collapse" }}
                   >
                     <thead>
                       <tr>
@@ -220,7 +365,7 @@ const AdminDashboard = () => {
                   </table>
                 </div>
               ) : (
-                /* DEFAULT VIEW (your existing tab table) */
+                /* DEFAULT VIEW */
                 <table className="min-w-full leading-normal">
                   <thead>
                     <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
@@ -262,6 +407,35 @@ const AdminDashboard = () => {
             </div>
           )}
         </main>
+
+        {/* Popup Modal for Adding Data (only for projects/services/blogs) */}
+        {showModal && activeTab !== "leads" && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-lg relative">
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
+              >
+                <FaTimes size={20} />
+              </button>
+
+              <h3 className="text-2xl font-bold mb-6 capitalize">
+                Add New {activeTab.slice(0, -1)}
+              </h3>
+
+              <form onSubmit={handleSubmit}>
+                {renderFormFields()}
+
+                <button
+                  type="submit"
+                  className="w-full bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition mt-4"
+                >
+                  Save Data
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
