@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth.routes.js";
 import leadsRoutes from "./routes/leads.routes.js";
 import servicesRoutes from "./routes/services.routes.js";
 import blogRoutes from "./routes/blog.routes.js";
+import projectRoutes from "./routes/project.routes.js"; // ✅ new import
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/leads", leadsRoutes);
 app.use("/api/services", servicesRoutes);
 app.use("/api/blog", blogRoutes);
+app.use("/api/projects", projectRoutes); // ✅ new route
 
 const port = process.env.PORT || 8080;
 
