@@ -1,24 +1,28 @@
 // frontend/src/api/client.js
 import axios from "axios";
 
-// 1) Base URL: env first, fallback localhost
+// Base URL: Agar .env me VITE_API_URL hai toh wo lega, warna default 8080/api use karega
 const API = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
-// 2) Axios client
+// Axios client
 const client = axios.create({
   baseURL: API,
 });
 
-// 3) Token interceptor (Bearer token)
+// Token interceptor (Bearer token attach karne ke liye)
 client.interceptors.request.use((config) => {
-  const token = localStorage.getItem("tv_token") || localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const token = localStorage.getItem("token") || localStorage.getItem("tv_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
-// 4) Fetch wrapper function (optional use)
+// Custom fetch wrapper (Agar aap apne code me fetch use kar rahe hain)
 export async function api(path, { method = "GET", body, token } = {}) {
-  const authToken = token || localStorage.getItem("tv_token") || localStorage.getItem("token");
+  const authToken = token || localStorage.getItem("token") || localStorage.getItem("tv_token");
 
   const res = await fetch(`${API}${path}`, {
     method,
