@@ -2,9 +2,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Components & Pages
+// Components
 import Navbar from './components/Navbar';
+import Footer from './components/Footer'; // <-- Naya Import kiya
+
+// Pages
 import Home from './pages/Home';
+import About from './pages/About';
 import Services from './pages/Services';
 import Projects from './pages/Projects';
 import Blog from './pages/Blog';
@@ -17,21 +21,27 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 function App() {
   return (
     <Router>
-      {/* Navbar yaha dalne se yeh sabhi pages par dikhega (admin ke alawa) */}
-      <Navbar /> 
-      
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/contact" element={<Contact />} />
+      <div className="flex flex-col min-h-screen">
+        <Navbar /> 
         
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      </Routes>
+        {/* Main content area */}
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/contact" element={<Contact />} />
+            
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          </Routes>
+        </main>
+
+        <Footer /> {/* <-- Routes ke neeche Footer laga diya */}
+      </div>
     </Router>
   );
 }
