@@ -5,11 +5,14 @@
     "dev": "concurrently \"npm run frontend\" \"npm run backend\""
   },
   "devDependencies": {
+    "@tanstack/router": "^0.0.1-beta.53",
+    "@tanstack/router-plugin": "^1.166.3",
     "concurrently": "^9.2.1",
     "gh-pages": "^6.3.0"
   },
   "dependencies": {
     "axios": "^1.13.6",
-    "cloudinary": "^2.9.0"
+    "cloudinary": "^2.9.0",
+    "react-router-dom": "^7.13.1"
   }
 }
