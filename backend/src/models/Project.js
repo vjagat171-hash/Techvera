@@ -1,13 +1,17 @@
-// backend/src/models/Project.js
 import mongoose from "mongoose";
 
-const projectSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  imageUrl: { type: String }, // Project ki image ka link
-  liveLink: { type: String }, // Website ka URL
-  category: { type: String, default: "Web Development" },
-  createdAt: { type: Date, default: Date.now },
-});
+const projectSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    category: { type: String, default: "MERN Stack" },
+    status: { type: String, default: "Live" }, // e.g., Live, Beta, Done
+    description: { type: String, required: true },
+    tech: [{ type: String }], // Array for technologies like ["React", "Node"]
+    imageUrl: { type: String, default: "" },
+    liveLink: { type: String, default: "" },
+    repoLink: { type: String, default: "" },
+  },
+  { timestamps: true }
+);
 
 export default mongoose.model("Project", projectSchema);

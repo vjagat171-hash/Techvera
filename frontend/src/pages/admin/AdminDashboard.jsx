@@ -12,6 +12,10 @@ const AdminDashboard = () => {
   const [err, setErr] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({});
+  
+  // ✅ Image Upload States
+  const [imageFile, setImageFile] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const token = localStorage.getItem("tv_token") || localStorage.getItem("token");
 
@@ -31,8 +35,8 @@ const AdminDashboard = () => {
     setErr("");
     try {
       if (activeTab === "leads") {
-        const leadsData = await api.get("/leads", { headers: { Authorization: `Bearer ${token}` } }); 
-        setLeads(Array.isArray(leadsData.data) ? leadsData.data : (leadsData || []));
+        const res = await api.get("/leads", { headers: { Authorization: `Bearer ${token}` } }); 
+        setLeads(Array.isArray(res.data) ? res.data : []);
         setData([]);
       } else {
         const res = await api.get(`/${activeTab}`);
@@ -41,7 +45,7 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      setErr(error?.response?.data?.message || "Error connecting to server.");
+      setErr("Failed to load data.");
       if(error?.response?.status === 401) handleLogout();
     }
     setLoading(false);
@@ -51,8 +55,9 @@ const AdminDashboard = () => {
     fetchData();
   }, [activeTab]);
 
+  // ✅ DELETE FIX
   const handleDelete = async (id) => {
-    if(!window.confirm(`Are you sure you want to delete this ${activeTab.slice(0, -1)}?`)) return;
+    if(!window.confirm(`Are you sure you want to delete this?`)) return;
     try {
       if (activeTab === "leads") {
         await api.delete(`/leads/${id}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -68,6 +73,7 @@ const AdminDashboard = () => {
 
   const openModal = () => {
     setFormData({});
+    setImageFile(null); // Clear previous file
     setShowModal(true);
   };
 
@@ -75,89 +81,146 @@ const AdminDashboard = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // ✅ IMAGE UPLOAD & SAVE LOGIC
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (!isCrudTab) return;
-
       let payload = { ...formData };
 
-      if (activeTab === 'services' && typeof payload.features === 'string') {
-        payload.features = payload.features.split(',').map(item => item.trim()).filter(item => item !== "");
+      // 1. Upload Image to Cloudinary if selected
+      if (imageFile) {
+        setUploadingImage(true);
+        const imgData = new FormData();
+        imgData.append('image', imageFile);
+        
+        const uploadRes = await api.post('/upload', imgData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (activeTab === 'team') {
+          payload.image = uploadRes.data.imageUrl;
+        } else {
+          payload.imageUrl = uploadRes.data.imageUrl;
+          payload.image = uploadRes.data.imageUrl; // fallback
+        }
+        setUploadingImage(false);
       }
 
+      // 2. Format Array fields
+      if (activeTab === 'services' && typeof payload.features === 'string') {
+        payload.features = payload.features.split(',').map(item => item.trim()).filter(Boolean);
+      }
+      if (activeTab === 'projects' && typeof payload.tech === 'string') {
+        payload.tech = payload.tech.split(',').map(item => item.trim()).filter(Boolean);
+      }
+      if (activeTab === 'blogs' && typeof payload.tags === 'string') {
+        payload.tags = payload.tags.split(',').map(item => item.trim()).filter(Boolean);
+      }
+
+      // 3. Save to DB
       await api.post(`/${activeTab}`, payload);
       setShowModal(false); 
-      setFormData({});     
+      setFormData({});
+      setImageFile(null);     
       fetchData();         
       alert(`${activeTab.slice(0, -1)} published successfully!`);
     } catch (error) {
       console.error(error);
+      setUploadingImage(false);
       alert("Error saving data. Please check fields.");
     }
   };
+
+  const ImageInput = () => (
+    <div className="mb-4">
+      <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Upload Image</label>
+      <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} 
+        className="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition" 
+      />
+    </div>
+  );
 
   const renderFormFields = () => {
     if (activeTab === 'projects') {
       return (
         <>
-          <input type="text" name="title" placeholder="Project Title *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <textarea name="description" placeholder="Project Description *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition resize-none" rows="3" />
-          <input type="text" name="imageUrl" placeholder="Image URL (http://...)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <input type="text" name="liveLink" placeholder="Live Website Link" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <input type="text" name="category" placeholder="Category (e.g. Web Dev, SEO)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-        </>
-      );
-    }
-    if (activeTab === 'services') {
-      return (
-        <>
-          <input type="text" name="title" placeholder="Service Name *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <input type="text" name="category" placeholder="Category (e.g. Development, Marketing)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <textarea name="shortDesc" placeholder="Short Description (For Card) *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition resize-none" rows="2" />
-          <textarea name="features" placeholder="Bullet Points (Use Comma to separate: Fast UI, SEO Ready, Admin Panel)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition resize-none" rows="2" />
+          <input type="text" name="title" placeholder="Project Title *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+          <div className="grid grid-cols-2 gap-4 mb-4">
+             <input type="text" name="category" placeholder="Category (e.g. MERN Stack)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+             <select name="status" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50 text-slate-700">
+               <option value="">Status (Default: Live)</option>
+               <option value="Live">Live</option>
+               <option value="Beta">Beta</option>
+               <option value="Done">Done</option>
+             </select>
+          </div>
+          <textarea name="description" placeholder="Project Description *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 bg-slate-50" rows="3" />
+          <textarea name="tech" placeholder="Tech Stack (Comma separated: React, Node.js)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 bg-slate-50" rows="2" />
+          <ImageInput />
+          <div className="grid grid-cols-2 gap-4 mt-2">
+             <input type="text" name="liveLink" placeholder="Live Demo URL" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+             <input type="text" name="repoLink" placeholder="GitHub Repo URL" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+          </div>
         </>
       );
     }
     if (activeTab === 'blogs') {
       return (
         <>
-          <input type="text" name="title" placeholder="Blog Title *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <input type="text" name="author" placeholder="Author Name" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <textarea name="content" placeholder="Blog Content... *" rows="5" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition resize-none" />
+          <input type="text" name="title" placeholder="Blog Title *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+          <div className="grid grid-cols-2 gap-4 mb-4">
+             <input type="text" name="author" placeholder="Author Name" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+             <input type="text" name="category" placeholder="Category (e.g. SEO)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+          </div>
+          <input type="text" name="tags" placeholder="Tags (Comma separated)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 bg-slate-50" />
+          <ImageInput />
+          <textarea name="content" placeholder="Write full blog content here... *" rows="6" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 bg-slate-50" />
         </>
       );
     }
+    // SERVICES
+    if (activeTab === 'services') {
+      return (
+        <>
+          <input type="text" name="title" placeholder="Service Name *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 bg-slate-50" />
+          <input type="text" name="category" placeholder="Category" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 bg-slate-50" />
+          <textarea name="shortDesc" placeholder="Short Description *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 bg-slate-50" rows="2" />
+          <textarea name="features" placeholder="Bullet Points (Comma separated)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 bg-slate-50" rows="2" />
+        </>
+      );
+    }
+    // TEAM
     if (activeTab === 'team') {
       return (
         <>
-          <input type="text" name="name" placeholder="Member Name *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <input type="text" name="role" placeholder="Job Role (e.g. Developer) *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <input type="text" name="image" placeholder="Image URL (http://...)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <textarea name="bio" placeholder="Short Bio / Description" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition resize-none" rows="3" />
+          <input type="text" name="name" placeholder="Member Name *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 bg-slate-50" />
+          <input type="text" name="role" placeholder="Job Role *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 bg-slate-50" />
+          <ImageInput />
+          <textarea name="bio" placeholder="Short Bio" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 bg-slate-50" rows="3" />
         </>
       );
     }
+    // TESTIMONIALS
     if (activeTab === 'testimonials') {
       return (
         <>
-          <input type="text" name="name" placeholder="Client Name *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <input type="text" name="company" placeholder="Company / Role (Optional)" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition" />
-          <textarea name="quote" placeholder="Client Quote / Feedback *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition resize-none" rows="4" />
+          <input type="text" name="name" placeholder="Client Name *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 bg-slate-50" />
+          <input type="text" name="company" placeholder="Company / Role" onChange={handleInputChange} className="w-full p-3 border border-slate-200 rounded-xl mb-4 bg-slate-50" />
+          <textarea name="quote" placeholder="Client Feedback *" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-4 bg-slate-50" rows="4" />
         </>
       );
     }
   };
 
   const NavButton = ({ tab, icon, label }) => (
-    <button onClick={() => setActiveTab(tab)} className={`flex items-center p-3.5 rounded-xl transition duration-300 font-semibold ${activeTab === tab ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+    <button onClick={() => setActiveTab(tab)} className={`flex items-center p-3.5 rounded-xl transition duration-300 font-semibold ${activeTab === tab ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
       <span className="mr-3 text-lg">{icon}</span> {label}
     </button>
   );
 
   return (
     <div className="flex h-screen bg-[#f8fafc] font-sans selection:bg-blue-600 selection:text-white">
-      {/* Sidebar */}
       <div className="w-72 bg-slate-950 text-white shadow-2xl flex flex-col relative z-20">
         <div className="p-8 text-2xl font-black border-b border-slate-800 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 tracking-tight">
           TECHVERA <span className="text-xs font-bold text-slate-500 block mt-1 tracking-widest uppercase">Admin System</span>
@@ -172,13 +235,12 @@ const AdminDashboard = () => {
           <NavButton tab="leads" icon={<FaUsers />} label="Audit Requests" />
         </nav>
         <div className="absolute bottom-0 w-full p-6 bg-gradient-to-t from-slate-950 to-transparent">
-          <button onClick={handleLogout} className="flex w-full items-center justify-center p-3.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition duration-300 font-bold border border-red-500/20 hover:border-red-500">
+          <button onClick={handleLogout} className="flex w-full items-center justify-center p-3.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition font-bold border border-red-500/20">
             <FaSignOutAlt className="mr-2" /> End Session
           </button>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <header className="bg-white shadow-sm border-b border-slate-200 p-8 flex justify-between items-center z-10">
           <div>
@@ -186,7 +248,7 @@ const AdminDashboard = () => {
             <p className="text-slate-500 text-sm mt-1 font-medium">Control the data shown on your live website.</p>
           </div>
           {isCrudTab && (
-            <button onClick={openModal} className="bg-slate-900 text-white px-6 py-3.5 rounded-full shadow-lg hover:bg-blue-600 transition duration-300 font-bold flex items-center transform hover:-translate-y-0.5">
+            <button onClick={openModal} className="bg-slate-900 text-white px-6 py-3.5 rounded-full shadow-lg hover:bg-blue-600 transition font-bold flex items-center">
               <span className="text-xl mr-2 leading-none">+</span> Add {activeTab.slice(0, -1)}
             </button>
           )}
@@ -212,26 +274,14 @@ const AdminDashboard = () => {
                     </thead>
                     <tbody className="text-sm">
                       {leads.length === 0 ? (
-                        <tr><td colSpan="4" className="py-16 text-center text-slate-400 font-bold">No leads or requests found.</td></tr>
+                        <tr><td colSpan="4" className="py-16 text-center text-slate-400 font-bold">No leads found.</td></tr>
                       ) : (
                         leads.map((l) => (
                           <tr key={l._id} className="border-b border-slate-100 hover:bg-slate-50/50 transition">
-                            <td className="py-5 px-6">
-                              <div className="font-bold text-slate-900 text-base">{l.name}</div>
-                              {l.company && <div className="text-xs text-blue-600 font-bold uppercase mt-1 tracking-wide">{l.company}</div>}
-                              {l.budget && <div className="inline-block mt-2 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-md">{l.budget}</div>}
-                            </td>
-                            <td className="py-5 px-6">
-                              <div className="font-semibold text-slate-700">{l.email}</div>
-                              <div className="text-xs text-slate-500 font-medium mt-1">{l.phone || 'No phone provided'}</div>
-                              <div className="text-xs text-slate-400 mt-2">{l.createdAt ? new Date(l.createdAt).toLocaleDateString() : ""}</div>
-                            </td>
-                            <td className="py-5 px-6">
-                               <div className="text-slate-600 leading-relaxed line-clamp-3 max-w-xs">{l.message || 'Quick lead. No message.'}</div>
-                            </td>
-                            <td className="py-5 px-6 text-center">
-                              <button onClick={() => handleDelete(l._id)} className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg font-bold transition">Delete</button>
-                            </td>
+                            <td className="py-5 px-6"><div className="font-bold">{l.name}</div><div className="text-xs text-blue-600 mt-1">{l.company}</div></td>
+                            <td className="py-5 px-6 font-semibold">{l.email}<div className="text-xs text-slate-500 mt-1">{l.phone}</div></td>
+                            <td className="py-5 px-6"><div className="text-slate-600 line-clamp-3">{l.message}</div></td>
+                            <td className="py-5 px-6 text-center"><button onClick={() => handleDelete(l._id)} className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold">Delete</button></td>
                           </tr>
                         ))
                       )}
@@ -248,27 +298,19 @@ const AdminDashboard = () => {
                   </thead>
                   <tbody className="text-sm">
                     {data.length === 0 ? (
-                      <tr><td colSpan="2" className="py-16 text-center text-slate-400 font-bold">No {activeTab} found in database.</td></tr>
+                      <tr><td colSpan="2" className="py-16 text-center text-slate-400 font-bold">No data found.</td></tr>
                     ) : (
                       data.map((item) => (
-                        <tr key={item._id} className="hover:bg-slate-50/50 transition border-b border-slate-100 last:border-b-0">
+                        <tr key={item._id} className="hover:bg-slate-50/50 transition border-b border-slate-100">
                           <td className="py-5 px-6 text-left">
-                            <div className="font-bold text-slate-900 text-lg">{item.title || item.name}</div>
-                            {(item.category || item.role || item.company) && (
-                              <span className="inline-block mt-1 text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase tracking-wide">
-                                {item.category || item.role || item.company}
-                              </span>
-                            )}
-                            {(item.shortDesc || item.description || item.bio || item.quote) && (
-                                <div className="text-slate-500 mt-2 text-xs max-w-md truncate">
-                                    {item.shortDesc || item.description || item.bio || item.quote}
-                                </div>
-                            )}
+                            <div className="font-bold text-slate-900 text-lg flex items-center gap-3">
+                              {/* Show tiny preview if image exists */}
+                              {(item.imageUrl || item.image) && <img src={item.imageUrl || item.image} alt="preview" className="w-10 h-10 object-cover rounded-lg border border-slate-200" />}
+                              {item.title || item.name}
+                            </div>
                           </td>
                           <td className="py-5 px-6 text-right">
-                            <button onClick={() => handleDelete(item._id)} className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg font-bold transition">
-                              Delete
-                            </button>
+                            <button onClick={() => handleDelete(item._id)} className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-600 hover:text-white transition">Delete</button>
                           </td>
                         </tr>
                       ))
@@ -280,25 +322,23 @@ const AdminDashboard = () => {
           )}
         </main>
 
-        {/* Modal */}
         {showModal && isCrudTab && (
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-            <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-xl relative border border-slate-100 transform transition-all">
-              <button onClick={() => setShowModal(false)} className="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition bg-slate-50 hover:bg-red-50 p-3 rounded-full">
-                <FaTimes size={16} />
-              </button>
-              <h3 className="text-3xl font-black mb-2 capitalize text-slate-900">Add New {activeTab.slice(0, -1)}</h3>
-              <p className="text-slate-500 text-sm mb-8 font-medium">Fill the details. It will immediately reflect on the live website.</p>
-              <form onSubmit={handleSubmit}>
+            <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-xl relative transform transition-all">
+              <button onClick={() => setShowModal(false)} className="absolute top-6 right-6 text-slate-400 hover:text-red-500 bg-slate-50 p-3 rounded-full"><FaTimes /></button>
+              <h3 className="text-3xl font-black mb-2 capitalize">Add New {activeTab.slice(0, -1)}</h3>
+              <p className="text-slate-500 text-sm mb-6">Fill details and upload image. It reflects live instantly.</p>
+              
+              <form onSubmit={handleSubmit} className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
                 {renderFormFields()}
-                <button type="submit" className="w-full bg-blue-600 text-white font-black text-lg py-4 px-4 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition duration-300 mt-4">
-                  Publish to Live Site
+                <button type="submit" disabled={uploadingImage} className="w-full bg-blue-600 text-white font-black text-lg py-4 px-4 rounded-xl hover:bg-blue-700 shadow-lg mt-4 disabled:bg-slate-400 flex items-center justify-center">
+                  {uploadingImage ? <div className="animate-spin h-5 w-5 border-t-2 border-white rounded-full mr-2"></div> : null}
+                  {uploadingImage ? "Uploading & Saving..." : "Publish to Live Site"}
                 </button>
               </form>
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

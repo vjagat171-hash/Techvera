@@ -1,37 +1,45 @@
-import express from "express";
-import Project from "../models/Project.js";
-import { requireAuth as auth } from "../middleware/auth.js"; // ✅ FIX
-
+import express from 'express';
+import Project from '../models/Project.js';
 const router = express.Router();
 
-// Get all projects (Public)
-router.get("/", async (req, res) => {
+// GET all projects
+router.get('/', async (req, res) => {
   try {
     const projects = await Project.find().sort({ createdAt: -1 });
     res.json(projects);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (err) { 
+    res.status(500).json({ message: err.message }); 
   }
 });
 
-// Create new project (Admin Only)
-router.post("/", auth, async (req, res) => {
-  const project = new Project(req.body);
+// POST new project (Admin panel se add karne ke liye)
+router.post('/', async (req, res) => {
   try {
-    const newProject = await project.save();
+    const newProject = new Project({
+      title: req.body.title,
+      category: req.body.category || 'MERN Stack',
+      status: req.body.status || 'Live',
+      description: req.body.description,
+      tech: req.body.tech || [], // Array of strings
+      imageUrl: req.body.imageUrl || '',
+      liveLink: req.body.liveLink || '',
+      repoLink: req.body.repoLink || ''
+    });
+    
+    await newProject.save();
     res.status(201).json(newProject);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+  } catch (err) { 
+    res.status(400).json({ message: err.message }); 
   }
 });
 
-// Delete a project (Admin Only)
-router.delete("/:id", auth, async (req, res) => {
+// DELETE a project
+router.delete('/:id', async (req, res) => {
   try {
     await Project.findByIdAndDelete(req.params.id);
-    res.json({ message: "Project deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.json({ message: 'Project deleted' });
+  } catch (err) { 
+    res.status(500).json({ message: err.message }); 
   }
 });
 
