@@ -465,7 +465,11 @@ const Projects = () => {
   }, [allProjects]);
 
   const spotlightProject = useMemo(() => {
-    return filteredProjects.find((p) => hasValidLink(p.links?.live)) || filteredProjects[0] || null;
+    return (
+      filteredProjects.find((p) => hasValidLink(p.links?.live)) ||
+      filteredProjects[0] ||
+      null
+    );
   }, [filteredProjects]);
 
   const stats = useMemo(() => {
@@ -697,29 +701,11 @@ const Projects = () => {
           </button>
         ))}
       </div>
-
-      <div className="flex flex-wrap justify-center gap-2">
-        {techOptions.map((tech) => (
-          <button
-            key={tech}
-            onClick={() => setSelectedTech(tech)}
-            className={`px-3.5 py-2 rounded-full text-xs md:text-sm font-bold transition ${
-              selectedTech === tech
-                ? 'bg-purple-600 text-white shadow-md'
-                : 'bg-purple-50 text-purple-700 border border-purple-100 hover:bg-purple-100'
-            }`}
-            type="button"
-          >
-            {tech}
-          </button>
-        ))}
-      </div>
     </div>
   );
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans overflow-hidden pb-24 selection:bg-blue-600 selection:text-white">
-      {/* Hero */}
       <section
         className="relative text-white py-24 md:py-32 px-6 overflow-hidden border-b-4 border-blue-600 bg-cover bg-center"
         style={{ backgroundImage: `url('${bannerImg || fallbackHeroImage}')` }}
@@ -769,7 +755,6 @@ const Projects = () => {
         </motion.div>
       </section>
 
-      {/* Stats */}
       <section className="bg-blue-600 text-white py-12 px-6 shadow-inner relative z-20">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8 text-center">
           {stats.map((stat, index) => (
@@ -789,7 +774,6 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* Industries */}
       <section className="py-20 px-6 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
@@ -823,7 +807,6 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* Featured */}
       {featuredProjects.length > 0 && (
         <section className="py-20 md:py-24 px-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
@@ -909,7 +892,6 @@ const Projects = () => {
         </section>
       )}
 
-      {/* Spotlight */}
       {spotlightProject && (
         <section className="py-20 px-6 bg-white border-y border-gray-100">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -1023,7 +1005,6 @@ const Projects = () => {
         </section>
       )}
 
-      {/* Filters */}
       <section
         id="portfolio"
         className="px-6 py-6 bg-white/90 sticky top-0 z-40 backdrop-blur-md border-y border-gray-200 shadow-sm"
@@ -1101,7 +1082,6 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* Projects */}
       <section className="max-w-7xl mx-auto px-6 mt-16">
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 mb-10">
           <div>
@@ -1288,7 +1268,6 @@ const Projects = () => {
         )}
       </section>
 
-      {/* Tech stack */}
       <section className="py-20 px-6 bg-white mt-16 border-t border-gray-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -1327,7 +1306,6 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* Process */}
       <section className="py-20 md:py-24 px-6 bg-slate-950 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         <div className="max-w-7xl mx-auto relative z-10">
@@ -1362,7 +1340,6 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
       <section className="py-20 md:py-24 px-6 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
@@ -1402,7 +1379,6 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* FAQ */}
       <section className="py-20 md:py-24 px-6 bg-gray-50 border-b border-gray-100">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
@@ -1465,7 +1441,6 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="max-w-5xl mx-auto text-center mt-20 px-6">
         <div className="bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-[2.5rem] p-12 md:p-20 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px]"></div>
@@ -1488,7 +1463,6 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* Quick View Modal */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div

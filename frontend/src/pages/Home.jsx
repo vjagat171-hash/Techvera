@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/client';
@@ -7,7 +7,6 @@ import {
   FaChartLine,
   FaLaptopCode,
   FaBullseye,
-  FaUsers,
   FaSearch,
   FaFacebookF,
   FaEnvelopeOpenText,
@@ -30,8 +29,141 @@ import {
   SiZapier,
 } from 'react-icons/si';
 
+const founderImg = '/Author.jpg';
+
 const fallbackHeroImage =
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80';
+
+const fallbackProjectImage =
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80';
+
+const fallbackFounderImage =
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80';
+
+const stats = [
+  { number: '150+', label: 'Projects Delivered' },
+  { number: '98%', label: 'Client Retention' },
+  { number: '10M+', label: 'Leads Generated' },
+  { number: '5+', label: 'Years Experience' },
+];
+
+const services = [
+  {
+    icon: <FaLaptopCode />,
+    title: 'Web Development',
+    desc: 'Custom MERN stack websites and landing pages engineered for blazing speed and high conversion rates.',
+  },
+  {
+    icon: <FaSearch />,
+    title: 'SEO & Organic Growth',
+    desc: 'Technical SEO, high-authority link building, and content strategies to dominate Google search results.',
+  },
+  {
+    icon: <FaChartLine />,
+    title: 'Performance Ads',
+    desc: 'Data-driven Meta & Google Ads campaigns with rigorous A/B testing to maximize your ROAS.',
+  },
+  {
+    icon: <FaEnvelopeOpenText />,
+    title: 'Email Automations',
+    desc: 'Advanced email sequences and WhatsApp funnels designed to recover carts and increase LTV.',
+  },
+];
+
+const tools = [
+  { icon: <FaReact />, name: 'React.js', color: 'hover:text-[#61DBFB]' },
+  { icon: <FaNodeJs />, name: 'Node.js', color: 'hover:text-[#68A063]' },
+  { icon: <SiMongodb />, name: 'MongoDB', color: 'hover:text-[#4DB33D]' },
+  { icon: <FaAws />, name: 'AWS', color: 'hover:text-[#FF9900]' },
+  { icon: <SiShopify />, name: 'Shopify', color: 'hover:text-[#96bf48]' },
+  { icon: <SiWordpress />, name: 'WordPress', color: 'hover:text-[#21759b]' },
+  { icon: <SiGoogleanalytics />, name: 'GA4', color: 'hover:text-[#F4B400]' },
+  { icon: <FaFacebookF />, name: 'Meta Ads', color: 'hover:text-[#1877F2]' },
+  { icon: <SiZapier />, name: 'Zapier', color: 'hover:text-[#FF4A00]' },
+];
+
+const pricingPlans = [
+  {
+    label: 'Starter',
+    badge: 'Early-stage',
+    desc: 'Testing channels & getting first predictable results.',
+    bullets: ['1–2 primary services', 'Landing page optimisation', 'Monthly reporting'],
+    highlight: false,
+  },
+  {
+    label: 'Growth',
+    badge: 'Most popular',
+    desc: 'For brands with product-market fit scaling aggressively.',
+    bullets: ['Multi-channel strategy', 'Funnel building & CRM', 'Weekly performance reviews'],
+    highlight: true,
+  },
+  {
+    label: 'Scale',
+    badge: 'Serious spenders',
+    desc: 'For teams spending big needing a dedicated outsourced CMO.',
+    bullets: ['Dedicated growth squad', 'Advanced tracking setup', 'Custom CRO roadmap'],
+    highlight: false,
+  },
+];
+
+const faqs = [
+  {
+    question: 'How soon can we start seeing results?',
+    answer:
+      'For performance marketing (Ads), you can see initial traction within 7-14 days. For SEO and organic growth, it typically takes 3-6 months to build sustainable momentum.',
+  },
+  {
+    question: 'Do you work with startups or established brands?',
+    answer:
+      'Both! Our Starter and Growth plans are perfect for funded startups looking for product-market fit, while our Scale plan acts as an outsourced CMO for 7-8 figure brands.',
+  },
+  {
+    question: 'Do you offer custom web development?',
+    answer:
+      'Yes. We build high-speed, scalable applications using the MERN stack customized entirely to your business needs.',
+  },
+  {
+    question: 'Will I have a dedicated account manager?',
+    answer:
+      "Absolutely. You won't be passed around. You'll get a dedicated lead strategist and a direct WhatsApp or Slack channel with our core team.",
+  },
+];
+
+const defaultCaseStudies = [
+  {
+    title: 'TechNova App Build',
+    category: 'App Dev',
+    description:
+      'Built a scalable MERN stack application for a rising startup, improving load speeds by 60%.',
+    imageUrl: fallbackProjectImage,
+    liveLink: '',
+  },
+  {
+    title: 'UrbanWear E-Comm',
+    category: 'Marketing',
+    description:
+      'Scaled monthly revenue from ₹5L to ₹25L using Meta dynamic ads and CRO strategies.',
+    imageUrl:
+      'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&q=80',
+    liveLink: '',
+  },
+  {
+    title: 'GlobalEstates SEO',
+    category: 'SEO',
+    description:
+      'Ranked on page 1 for 15+ highly competitive real estate keywords in just 4 months.',
+    imageUrl:
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    liveLink: '',
+  },
+];
+
+const sortByDateDesc = (items = []) =>
+  [...items].sort((a, b) => {
+    const aDate = new Date(a?.createdAt || 0).getTime();
+    const bDate = new Date(b?.createdAt || 0).getTime();
+    return bDate - aDate;
+  });
 
 const Home = () => {
   const navigate = useNavigate();
@@ -41,28 +173,33 @@ const Home = () => {
   const [latestBlogs, setLatestBlogs] = useState([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [loadingBlogs, setLoadingBlogs] = useState(true);
-
   const [quickEmail, setQuickEmail] = useState('');
   const [quickSubmitStatus, setQuickSubmitStatus] = useState('');
-
   const [activeFaq, setActiveFaq] = useState(null);
+  const [founderSrc, setFounderSrc] = useState(founderImg);
 
-  const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: 'easeOut' },
-    },
-  };
+  const fadeUp = useMemo(
+    () => ({
+      hidden: { opacity: 0, y: 40 },
+      visible: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.6, ease: 'easeOut' },
+      },
+    }),
+    []
+  );
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 },
-    },
-  };
+  const staggerContainer = useMemo(
+    () => ({
+      hidden: { opacity: 0 },
+      visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.15 },
+      },
+    }),
+    []
+  );
 
   useEffect(() => {
     const fetchHomeData = async () => {
@@ -73,34 +210,23 @@ const Home = () => {
           api.get('/pageImages'),
         ]);
 
-        if (
-          projectsRes.status === 'fulfilled' &&
-          Array.isArray(projectsRes.value?.data) &&
-          projectsRes.value.data.length > 0
-        ) {
-          setLatestProjects(projectsRes.value.data.slice(0, 3));
+        if (projectsRes.status === 'fulfilled' && Array.isArray(projectsRes.value?.data)) {
+          setLatestProjects(sortByDateDesc(projectsRes.value.data).slice(0, 3));
         }
 
-        if (
-          blogsRes.status === 'fulfilled' &&
-          Array.isArray(blogsRes.value?.data) &&
-          blogsRes.value.data.length > 0
-        ) {
-          setLatestBlogs(blogsRes.value.data.slice(0, 3));
+        if (blogsRes.status === 'fulfilled' && Array.isArray(blogsRes.value?.data)) {
+          setLatestBlogs(sortByDateDesc(blogsRes.value.data).slice(0, 3));
         }
 
-        if (
-          pageImagesRes.status === 'fulfilled' &&
-          Array.isArray(pageImagesRes.value?.data)
-        ) {
+        if (pageImagesRes.status === 'fulfilled' && Array.isArray(pageImagesRes.value?.data)) {
           const banner = pageImagesRes.value.data.find(
             (img) =>
               img?.title?.toLowerCase() === 'home' ||
               img?.page?.toLowerCase() === 'home'
           );
 
-          if (banner?.imageUrl) {
-            setBannerImg(banner.imageUrl);
+          if (banner?.imageUrl || banner?.image) {
+            setBannerImg(banner.imageUrl || banner.image);
           }
         }
       } catch (error) {
@@ -116,87 +242,37 @@ const Home = () => {
 
   const handleQuickSubmit = async (e) => {
     e.preventDefault();
-    if (!quickEmail) return;
+    const cleanedEmail = quickEmail.trim();
+    if (!cleanedEmail) return;
 
     setQuickSubmitStatus('submitting');
+
     try {
       await api.post('/leads', {
         name: 'Quick Roadmap Request',
-        email: quickEmail,
+        email: cleanedEmail,
         message: 'Requested from Home Page Top Strip.',
       });
+
       setQuickSubmitStatus('success');
       setQuickEmail('');
       setTimeout(() => setQuickSubmitStatus(''), 4000);
     } catch (error) {
+      console.error('Quick lead submit failed:', error);
       setQuickSubmitStatus('error');
       setTimeout(() => setQuickSubmitStatus(''), 4000);
     }
   };
 
-  const faqs = [
-    {
-      question: 'How soon can we start seeing results?',
-      answer:
-        'For performance marketing (Ads), you can see initial traction within 7-14 days. For SEO and organic growth, it typically takes 3-6 months to build sustainable momentum.',
-    },
-    {
-      question: 'Do you work with startups or established brands?',
-      answer:
-        "Both! Our 'Starter' and 'Growth' plans are perfect for funded startups looking for product-market fit, while our 'Scale' plan acts as an outsourced CMO for 7-8 figure brands.",
-    },
-    {
-      question: 'Do you offer custom web development?',
-      answer:
-        'Yes. We build high-speed, scalable applications using the MERN stack (MongoDB, Express, React, Node.js) customized entirely to your business needs.',
-    },
-    {
-      question: 'Will I have a dedicated account manager?',
-      answer:
-        "Absolutely. You won't be passed around. You'll get a dedicated lead strategist and a direct WhatsApp/Slack channel with our core team.",
-    },
-  ];
-
-  const defaultCaseStudies = [
-    {
-      title: 'TechNova App Build',
-      category: 'App Dev',
-      description:
-        'Built a scalable MERN stack application for a rising startup, improving load speeds by 60%.',
-      imageUrl:
-        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
-    },
-    {
-      title: 'UrbanWear E-Comm',
-      category: 'Marketing',
-      description:
-        'Scaled monthly revenue from ₹5L to ₹25L using Meta dynamic ads and CRO strategies.',
-      imageUrl:
-        'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&q=80',
-    },
-    {
-      title: 'GlobalEstates SEO',
-      category: 'SEO',
-      description:
-        'Ranked on page 1 for 15+ highly competitive real estate keywords in just 4 months.',
-      imageUrl:
-        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
-    },
-  ];
-
   return (
     <div className="bg-[#f8fafc] min-h-screen font-sans overflow-hidden selection:bg-blue-600 selection:text-white">
-      {/* --- HERO SECTION --- */}
       <section
         className="relative text-white pt-32 pb-40 px-6 overflow-hidden bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('${bannerImg || fallbackHeroImage}')`,
-        }}
+        style={{ backgroundImage: `url('${bannerImg || fallbackHeroImage}')` }}
       >
         <div className="absolute inset-0 bg-slate-950/75 z-0"></div>
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-blue-950/85 to-slate-900/90 z-0"></div>
 
-        {/* Animated Background Orbs */}
         <div className="absolute top-0 left-10 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob z-0"></div>
         <div className="absolute top-10 right-10 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob animation-delay-2000 z-0"></div>
 
@@ -223,12 +299,9 @@ const Home = () => {
           </h1>
 
           <p className="text-lg md:text-2xl text-slate-300 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
-            We don't just build websites; we build{' '}
-            <strong className="text-white font-semibold">
-              digital revenue engines
-            </strong>
-            . From high-converting Web Development to data-driven Performance
-            Marketing.
+            We don&apos;t just build websites; we build{' '}
+            <strong className="text-white font-semibold">digital revenue engines</strong>. From
+            high-converting Web Development to data-driven Performance Marketing.
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-5">
@@ -236,7 +309,7 @@ const Home = () => {
               to="/contact"
               className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-10 rounded-full shadow-[0_0_30px_rgba(37,99,235,0.4)] hover:shadow-[0_0_40px_rgba(37,99,235,0.6)] text-lg transition duration-300 flex items-center group"
             >
-              Get Your Free Audit{' '}
+              Get Your Free Audit
               <FaArrowRight className="ml-3 transform group-hover:translate-x-1 transition" />
             </Link>
 
@@ -249,11 +322,9 @@ const Home = () => {
           </div>
         </motion.div>
 
-        {/* Bottom Curve Divider */}
         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-10">
           <svg
             className="relative block w-full h-[50px] md:h-[100px]"
-            data-name="Layer 1"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 1200 120"
             preserveAspectRatio="none"
@@ -261,12 +332,11 @@ const Home = () => {
             <path
               d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,123.82,198.39,108.57,239.65,99.55,280.4,80.6,321.39,56.44Z"
               className="fill-[#f8fafc]"
-            ></path>
+            />
           </svg>
         </div>
       </section>
 
-      {/* --- QUICK LEAD STRIP --- */}
       <section className="relative z-20 -mt-10 max-w-6xl mx-auto px-6">
         <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
@@ -274,9 +344,7 @@ const Home = () => {
               <FaBullseye className="text-blue-600 text-xl" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">
-                Want a free growth roadmap?
-              </h3>
+              <h3 className="font-bold text-slate-900">Want a free growth roadmap?</h3>
               <p className="text-slate-500 text-sm">
                 Drop your email and our experts will contact you.
               </p>
@@ -315,7 +383,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- PROBLEM & AGITATION --- */}
       <section className="py-24 px-6 mt-10">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <motion.div
@@ -331,15 +398,15 @@ const Home = () => {
               Are you losing customers because of a poor digital setup?
             </h2>
             <p className="text-lg text-slate-600 mb-8">
-              Most businesses have a fragmented strategy. A beautiful website
-              that doesn't convert, or expensive ads sending traffic to a slow
-              page. This creates a massive "Revenue Leak".
+              Most businesses have a fragmented strategy. A beautiful website that doesn&apos;t
+              convert, or expensive ads sending traffic to a slow page. This creates a massive
+              revenue leak.
             </p>
 
             <ul className="space-y-4">
               {[
                 'Spending thousands on Ads but getting low-quality leads.',
-                'Website takes >3 seconds to load, killing your SEO.',
+                'Website takes more than 3 seconds to load, killing your SEO.',
                 'No retargeting funnel to bring back abandoned visitors.',
                 'Working with scattered freelancers instead of a unified team.',
               ].map((point, i) => (
@@ -350,9 +417,7 @@ const Home = () => {
                   <div className="mt-0.5 mr-3 text-red-400">
                     <FaExclamationTriangle />
                   </div>
-                  <span className="text-slate-700 font-medium text-sm">
-                    {point}
-                  </span>
+                  <span className="text-slate-700 font-medium text-sm">{point}</span>
                 </li>
               ))}
             </ul>
@@ -370,10 +435,10 @@ const Home = () => {
               <FaHandshake className="mr-3 text-blue-400" /> The Techvera Fix
             </h3>
             <p className="text-slate-300 mb-8 leading-relaxed">
-              We plug the leaks by building a cohesive digital ecosystem. Fast
-              MERN stack code, persuasive copy, and laser-targeted media
-              buying—all managed under one roof.
+              We plug the leaks by building a cohesive digital ecosystem. Fast MERN stack code,
+              persuasive copy, and laser-targeted media buying all managed under one roof.
             </p>
+
             <div className="space-y-4">
               <div className="bg-slate-800/80 backdrop-blur-md p-5 rounded-xl border border-slate-700 flex justify-between items-center hover:border-blue-500 transition">
                 <span className="font-semibold">Average Conversion Lift</span>
@@ -381,11 +446,11 @@ const Home = () => {
                   +45% <FaChartLine className="ml-2" />
                 </span>
               </div>
+
               <div className="bg-slate-800/80 backdrop-blur-md p-5 rounded-xl border border-slate-700 flex justify-between items-center hover:border-blue-500 transition">
                 <span className="font-semibold">Cost Per Acquisition</span>
                 <span className="text-emerald-400 font-bold flex items-center text-xl">
-                  -30%{' '}
-                  <FaChartLine className="ml-2 transform scale-y-[-1]" />
+                  -30% <FaChartLine className="ml-2 transform scale-y-[-1]" />
                 </span>
               </div>
             </div>
@@ -393,16 +458,10 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- STATS STRIP --- */}
       <section className="bg-blue-600 py-16 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center relative z-10">
-          {[
-            { number: '150+', label: 'Projects Delivered' },
-            { number: '98%', label: 'Client Retention' },
-            { number: '10M+', label: 'Leads Generated' },
-            { number: '5+', label: 'Years Experience' },
-          ].map((stat, i) => (
+          {stats.map((stat, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, scale: 0.5 }}
@@ -410,9 +469,7 @@ const Home = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
             >
-              <h3 className="text-5xl md:text-6xl font-black mb-2">
-                {stat.number}
-              </h3>
+              <h3 className="text-5xl md:text-6xl font-black mb-2">{stat.number}</h3>
               <p className="text-blue-200 font-bold uppercase tracking-widest text-xs md:text-sm">
                 {stat.label}
               </p>
@@ -421,7 +478,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- CORE SERVICES --- */}
       <section className="py-24 px-6 max-w-7xl mx-auto bg-[#f8fafc]">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900">
@@ -429,8 +485,8 @@ const Home = () => {
           </h2>
           <div className="w-24 h-1.5 bg-blue-600 mx-auto mt-6 rounded-full"></div>
           <p className="text-slate-500 mt-6 text-lg max-w-2xl mx-auto">
-            Everything your brand needs to scale, designed, developed, and
-            managed by one expert team.
+            Everything your brand needs to scale, designed, developed, and managed by one expert
+            team.
           </p>
         </div>
 
@@ -441,28 +497,7 @@ const Home = () => {
           viewport={{ once: true, margin: '-50px' }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
-          {[
-            {
-              icon: <FaLaptopCode />,
-              title: 'Web Development',
-              desc: 'Custom MERN stack websites and landing pages engineered for blazing speed and high conversion rates.',
-            },
-            {
-              icon: <FaSearch />,
-              title: 'SEO & Organic Growth',
-              desc: 'Technical SEO, high-authority link building, and content strategies to dominate Google search results.',
-            },
-            {
-              icon: <FaChartLine />,
-              title: 'Performance Ads',
-              desc: 'Data-driven Meta & Google Ads campaigns with rigorous A/B testing to maximize your ROAS.',
-            },
-            {
-              icon: <FaEnvelopeOpenText />,
-              title: 'Email Automations',
-              desc: 'Advanced email sequences and WhatsApp funnels designed to recover carts and increase LTV.',
-            },
-          ].map((feature, index) => (
+          {services.map((feature, index) => (
             <motion.div
               key={index}
               variants={fadeUp}
@@ -471,58 +506,36 @@ const Home = () => {
               <div className="text-4xl text-blue-600 mb-6 bg-blue-50 w-20 h-20 flex items-center justify-center rounded-full group-hover:bg-blue-600 group-hover:text-white transition duration-300 shadow-inner">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-extrabold mb-3 text-slate-900">
-                {feature.title}
-              </h3>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                {feature.desc}
-              </p>
+              <h3 className="text-xl font-extrabold mb-3 text-slate-900">{feature.title}</h3>
+              <p className="text-slate-500 text-sm leading-relaxed">{feature.desc}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
 
-      {/* --- TECH ARSENAL --- */}
       <section className="bg-slate-900 py-24 px-6 overflow-hidden relative">
         <div className="max-w-7xl mx-auto text-center relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Our Growth Arsenal
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Our Growth Arsenal</h2>
           <p className="text-slate-400 mb-16 max-w-2xl mx-auto">
-            We leverage enterprise-grade technologies to ensure your code is
-            robust and your marketing is strictly data-backed.
+            We leverage enterprise-grade technologies to ensure your code is robust and your
+            marketing is strictly data-backed.
           </p>
 
           <div className="flex flex-wrap justify-center gap-6 md:gap-10 text-slate-400">
-            {[
-              { icon: <FaReact />, name: 'React.js', color: 'hover:text-[#61DBFB]' },
-              { icon: <FaNodeJs />, name: 'Node.js', color: 'hover:text-[#68A063]' },
-              { icon: <SiMongodb />, name: 'MongoDB', color: 'hover:text-[#4DB33D]' },
-              { icon: <FaAws />, name: 'AWS', color: 'hover:text-[#FF9900]' },
-              { icon: <SiShopify />, name: 'Shopify', color: 'hover:text-[#96bf48]' },
-              { icon: <SiWordpress />, name: 'WordPress', color: 'hover:text-[#21759b]' },
-              { icon: <SiGoogleanalytics />, name: 'GA4', color: 'hover:text-[#F4B400]' },
-              { icon: <FaFacebookF />, name: 'Meta Ads', color: 'hover:text-[#1877F2]' },
-              { icon: <SiZapier />, name: 'Zapier', color: 'hover:text-[#FF4A00]' },
-            ].map((tool, idx) => (
+            {tools.map((tool, idx) => (
               <motion.div
                 key={idx}
                 whileHover={{ y: -5 }}
                 className={`flex flex-col items-center justify-center p-5 bg-slate-800 rounded-2xl border border-slate-700 w-28 md:w-36 transition duration-300 cursor-pointer ${tool.color}`}
               >
-                <div className="text-4xl mb-3 transition-colors duration-300">
-                  {tool.icon}
-                </div>
-                <span className="text-xs font-bold tracking-wider">
-                  {tool.name}
-                </span>
+                <div className="text-4xl mb-3 transition-colors duration-300">{tool.icon}</div>
+                <span className="text-xs font-bold tracking-wider">{tool.name}</span>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* --- LIVE PROJECTS --- */}
       <section className="py-24 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-end justify-between gap-6 mb-16">
@@ -531,10 +544,11 @@ const Home = () => {
                 Our Latest Masterpieces
               </h2>
               <p className="text-slate-500 mt-4 text-lg">
-                See the high-converting websites and marketing campaigns we've
-                recently deployed from our system.
+                See the high-converting websites and marketing campaigns we&apos;ve recently
+                deployed from our system.
               </p>
             </div>
+
             <Link
               to="/projects"
               className="text-sm font-bold text-white bg-slate-900 hover:bg-blue-600 px-8 py-4 rounded-full flex items-center transition shadow-lg whitespace-nowrap"
@@ -564,39 +578,39 @@ const Home = () => {
                   >
                     <div className="h-60 bg-slate-100 overflow-hidden relative">
                       <img
-                        src={
-                          project.imageUrl ||
-                          'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80'
-                        }
-                        alt={project.title}
+                        src={project.imageUrl || project.image || fallbackProjectImage}
+                        alt={project.title || 'Project'}
                         className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                        onError={(e) => {
+                          e.currentTarget.src = fallbackProjectImage;
+                        }}
                       />
                       <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md text-white text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-widest shadow-lg">
                         {project.category || project.tag || 'Digital Campaign'}
                       </div>
                     </div>
+
                     <div className="p-8 flex-grow flex flex-col">
                       <h3 className="text-2xl font-extrabold text-slate-900 mb-3 group-hover:text-blue-600 transition line-clamp-1">
-                        {project.title}
+                        {project.title || 'Untitled Project'}
                       </h3>
                       <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-grow line-clamp-3">
-                        {project.description || project.desc}
+                        {project.description || project.desc || 'Project details coming soon.'}
                       </p>
 
                       <div className="mt-auto">
-                        {project.liveLink ? (
+                        {project.liveLink || project?.links?.live ? (
                           <a
-                            href={project.liveLink}
+                            href={project.liveLink || project?.links?.live}
                             target="_blank"
                             rel="noreferrer"
                             className="flex items-center justify-center w-full bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white font-bold py-3.5 rounded-xl transition duration-300"
                           >
-                            <FaExternalLinkAlt className="mr-2 text-sm" /> View Live
-                            Project
+                            <FaExternalLinkAlt className="mr-2 text-sm" /> View Live Project
                           </a>
                         ) : (
                           <div className="flex items-center justify-center w-full bg-emerald-50 text-emerald-700 font-bold py-3.5 rounded-xl border border-emerald-100">
-                            <FaCheckCircle className="mr-2" />{' '}
+                            <FaCheckCircle className="mr-2" />
                             {project.result || 'Delivered Successfully'}
                           </div>
                         )}
@@ -610,7 +624,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- FOUNDER'S VISION --- */}
       <section className="bg-blue-600 text-white py-24 px-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-16 relative z-10">
@@ -622,12 +635,14 @@ const Home = () => {
           >
             <div className="w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden border-8 border-blue-400 mx-auto shadow-2xl relative">
               <img
-                src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80"
-                alt="Bhupendra - Founder"
+                src={founderSrc}
+                alt="Bhupendra Verma - Founder"
                 className="w-full h-full object-cover"
+                onError={() => setFounderSrc(fallbackFounderImage)}
               />
             </div>
           </motion.div>
+
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -636,13 +651,12 @@ const Home = () => {
           >
             <FaQuoteLeft className="text-6xl text-blue-400 mb-6 mx-auto md:mx-0 opacity-60" />
             <h3 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
-              "Our goal isn't just to launch campaigns; it's to build sustainable
-              revenue engines."
+              &quot;Our goal isn&apos;t just to launch campaigns; it&apos;s to build sustainable
+              revenue engines.&quot;
             </h3>
             <p className="text-blue-100 text-lg md:text-xl mb-8 font-light">
-              At Techvera, we treat your business like our own. Every line of code
-              we write and every ad dollar we spend is aggressively optimized for
-              your bottom-line growth.
+              At Techvera, we treat your business like our own. Every line of code we write and
+              every ad dollar we spend is aggressively optimized for your bottom-line growth.
             </p>
             <div>
               <p className="font-bold text-2xl tracking-wide">Bhupendra</p>
@@ -654,7 +668,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- PRICING / PACKAGES --- */}
       <section className="bg-[#f8fafc] py-24 px-6 border-b border-slate-200">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
@@ -662,50 +675,13 @@ const Home = () => {
               Transparent Growth Plans
             </h2>
             <p className="text-slate-500 mt-5 max-w-2xl mx-auto text-lg">
-              We customise each engagement around your current metrics, capacity,
-              and aggressive future goals.
+              We customise each engagement around your current metrics, capacity, and aggressive
+              future goals.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-            {[
-              {
-                label: 'Starter',
-                badge: 'Early-stage',
-                price: 'Custom',
-                desc: 'Testing channels & getting first predictable results.',
-                bullets: [
-                  '1–2 primary services',
-                  'Landing page optimisation',
-                  'Monthly reporting',
-                ],
-                highlight: false,
-              },
-              {
-                label: 'Growth',
-                badge: 'Most popular',
-                price: 'Custom',
-                desc: 'For brands with product-market fit scaling aggressively.',
-                bullets: [
-                  'Multi-channel strategy',
-                  'Funnel building & CRM',
-                  'Weekly performance reviews',
-                ],
-                highlight: true,
-              },
-              {
-                label: 'Scale',
-                badge: 'Serious spenders',
-                price: 'Custom',
-                desc: 'For teams spending big needing a dedicated outsourced CMO.',
-                bullets: [
-                  'Dedicated growth squad',
-                  'Advanced tracking setup',
-                  'Custom CRO roadmap',
-                ],
-                highlight: false,
-              },
-            ].map((plan, index) => (
+            {pricingPlans.map((plan, index) => (
               <motion.div
                 key={plan.label}
                 initial="hidden"
@@ -720,7 +696,7 @@ const Home = () => {
                 } flex flex-col justify-between`}
               >
                 {plan.highlight && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-6 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-6 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
                     Recommended
                   </div>
                 )}
@@ -729,11 +705,10 @@ const Home = () => {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-3xl font-black">{plan.label}</h3>
                   </div>
+
                   <span
                     className={`inline-block text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wide mb-6 ${
-                      plan.highlight
-                        ? 'bg-slate-800 text-blue-400'
-                        : 'bg-slate-100 text-slate-500'
+                      plan.highlight ? 'bg-slate-800 text-blue-400' : 'bg-slate-100 text-slate-500'
                     }`}
                   >
                     {plan.badge}
@@ -779,13 +754,10 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- FAQ --- */}
       <section className="py-24 px-6 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-extrabold text-slate-900">
-              Frequently Asked Questions
-            </h2>
+            <h2 className="text-4xl font-extrabold text-slate-900">Frequently Asked Questions</h2>
             <p className="text-slate-500 mt-4">
               Everything you need to know before we start working together.
             </p>
@@ -810,9 +782,7 @@ const Home = () => {
                   onClick={() => setActiveFaq(activeFaq === index ? null : index)}
                   className="w-full flex justify-between items-center p-6 text-left focus:outline-none"
                 >
-                  <span className="font-bold text-slate-900 text-lg pr-4">
-                    {faq.question}
-                  </span>
+                  <span className="font-bold text-slate-900 text-lg pr-4">{faq.question}</span>
                   <motion.div
                     animate={{ rotate: activeFaq === index ? 180 : 0 }}
                     className="text-blue-600 bg-blue-50 p-2 rounded-full"
@@ -839,23 +809,21 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- LATEST INSIGHTS / BLOGS --- */}
       <section className="py-24 px-6 bg-slate-900 text-white border-t border-slate-800">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-end justify-between gap-6 mb-16">
             <div>
-              <h2 className="text-4xl font-extrabold text-white">
-                Latest Industry Insights
-              </h2>
+              <h2 className="text-4xl font-extrabold text-white">Latest Industry Insights</h2>
               <p className="text-slate-400 mt-3">
                 Actionable strategies and tips from our growth experts.
               </p>
             </div>
+
             <Link
               to="/blog"
               className="text-sm font-bold text-blue-400 hover:text-white flex items-center transition group"
             >
-              Read all articles{' '}
+              Read all articles
               <FaArrowRight className="ml-2 transform group-hover:translate-x-1 transition" />
             </Link>
           </div>
@@ -882,15 +850,13 @@ const Home = () => {
                   onClick={() => navigate('/blog')}
                 >
                   <span className="text-xs font-bold text-blue-400 mb-4 uppercase tracking-widest block">
-                    {blog.createdAt
-                      ? new Date(blog.createdAt).toLocaleDateString()
-                      : 'Latest'}
+                    {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString() : 'Latest'}
                   </span>
                   <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition leading-tight line-clamp-2">
-                    {blog.title}
+                    {blog.title || 'Untitled Blog'}
                   </h3>
                   <p className="text-slate-400 text-sm leading-relaxed mb-8 flex-grow line-clamp-3">
-                    {blog.content}
+                    {blog.content || 'Blog preview not available.'}
                   </p>
                   <div className="mt-auto pt-5 border-t border-slate-700 flex justify-between items-center text-sm font-bold text-white group-hover:text-blue-400 transition">
                     <span>Read Article</span>
@@ -903,10 +869,9 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- FINAL CTA --- */}
       <section className="bg-blue-600 py-32 px-6 text-center relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-blue-500 rounded-full opacity-50"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-blue-400 rounded-full opacity-50"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-blue-500 rounded-full opacity-50"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-blue-400 rounded-full opacity-50"></div>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -919,8 +884,8 @@ const Home = () => {
             Stop Guessing. Start Growing.
           </h2>
           <p className="text-blue-100 text-xl md:text-2xl mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-            Book a no-obligation strategy call with our team to uncover your
-            brand's true revenue potential.
+            Book a no-obligation strategy call with our team to uncover your brand&apos;s true
+            revenue potential.
           </p>
           <Link
             to="/contact"
