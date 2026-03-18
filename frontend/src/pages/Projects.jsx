@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api/client';
 import {
   FaExternalLinkAlt,
@@ -20,267 +20,308 @@ import {
   FaClock,
   FaServer,
   FaChevronDown,
+  FaTimes,
+  FaBuilding,
+  FaHeartbeat,
+  FaGraduationCap,
+  FaShoppingCart,
+  FaQuestionCircle,
+  FaPlus,
+  FaMinus,
+  FaThLarge,
+  FaListUl,
+  FaSlidersH,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+
+const fallbackHeroImage =
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1920&q=80';
 
 const localProjects = [
   {
     id: 1,
-    title: "Jagat-Education",
-    category: "MERN Stack",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1200&auto=format&fit=crop",
-    desc: "Dynamic educational website featuring a responsive Hero section, course listings, and interactive UI components.",
-    tech: ["React", "Vite", "Responsive UI", "CSS", "MongoDB"],
-    links: { live: "https://jagatverma142.github.io/Jagateducation/", repo: "#" },
+    title: 'Jagat-Education',
+    category: 'MERN Stack',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Dynamic educational website featuring a responsive hero section, course listings, and interactive UI components.',
+    tech: ['React', 'Vite', 'Responsive UI', 'CSS', 'MongoDB'],
+    links: { live: 'https://jagatverma142.github.io/Jagateducation/', repo: '' },
   },
   {
     id: 2,
-    title: "Jagat-Med Health Portal",
-    category: "MERN Stack",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&auto=format&fit=crop",
-    desc: "Responsive medical website with dynamic routing and service listings deployed on GitHub Pages.",
-    tech: ["React", "Vite", "Tailwind", "Gh-Pages", "Responsive Design", "MongoDB"],
-    links: { live: "https://jagatverma142.github.io/jagat_med_web/", repo: "#" },
+    title: 'Jagat-Med Health Portal',
+    category: 'MERN Stack',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Responsive medical website with dynamic routing and service listings deployed on GitHub Pages.',
+    tech: ['React', 'Vite', 'Tailwind', 'Gh-Pages', 'Responsive Design', 'MongoDB'],
+    links: { live: 'https://jagatverma142.github.io/jagat_med_web/', repo: '' },
   },
   {
     id: 3,
-    title: "Awak_Agency",
-    category: "MERN Stack",
-    status: "Beta",
-    img: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1200&auto=format&fit=crop",
-    desc: "Modern digital agency portfolio featuring services from UI/UX to SEO with performance-first UI.",
-    tech: ["React", "Vite", "Tailwind", "Gh-Pages", "Responsive Design", "MongoDB"],
-    links: { live: "https://jagatverma142.github.io/Digital_Agency/", repo: "#" },
+    title: 'Awak_Agency',
+    category: 'MERN Stack',
+    status: 'Beta',
+    img: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Modern digital agency portfolio featuring services from UI/UX to SEO with a performance-first interface.',
+    tech: ['React', 'Vite', 'Tailwind', 'Gh-Pages', 'Responsive Design', 'MongoDB'],
+    links: { live: 'https://jagatverma142.github.io/Digital_Agency/', repo: '' },
   },
   {
     id: 4,
-    title: "Personal Portfolio",
-    category: "MERN Stack",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop",
-    desc: "High-performance personal portfolio showcasing skills, projects, and contact info.",
-    tech: ["React", "Vite", "Framer Motion", "SEO"],
-    links: { live: "#", repo: "#" },
+    title: 'Personal Portfolio',
+    category: 'MERN Stack',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop',
+    desc: 'High-performance portfolio website showcasing skills, projects, and contact information with smooth UI.',
+    tech: ['React', 'Vite', 'Framer Motion', 'SEO'],
+    links: { live: '', repo: '' },
   },
   {
     id: 5,
-    title: "Artist Portfolio",
-    category: "MERN Stack",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=1200&auto=format&fit=crop",
-    desc: "Visually-driven site featuring custom galleries and SEO-optimized content for artists.",
-    tech: ["React", "CSS Grid", "Lazy Load"],
-    links: { live: "#", repo: "#" },
+    title: 'Artist Portfolio',
+    category: 'MERN Stack',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Visually driven portfolio site with custom gallery layouts and SEO-focused content structure.',
+    tech: ['React', 'CSS Grid', 'Lazy Load'],
+    links: { live: '', repo: '' },
   },
-
   {
     id: 6,
-    title: "College Management System",
-    category: "Django",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&auto=format&fit=crop",
-    desc: "Comprehensive platform to manage student/faculty records and department schedules.",
-    tech: ["Django", "MySQL", "Python", "HTML/CSS"],
-    links: { live: "#", repo: "#" },
+    title: 'College Management System',
+    category: 'Django',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Comprehensive platform to manage students, faculty records, and department schedules.',
+    tech: ['Django', 'MySQL', 'Python', 'HTML/CSS'],
+    links: { live: '', repo: '' },
   },
   {
     id: 7,
-    title: "Hospital Patient Manager",
-    category: "Django",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200&auto=format&fit=crop",
-    desc: "Secure web app for patient records and appointments with Role-Based Access Control.",
-    tech: ["Django", "RBAC", "Bootstrap", "SQLite"],
-    links: { live: "#", repo: "#" },
+    title: 'Hospital Patient Manager',
+    category: 'Django',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Secure application for patient records and appointments with role-based access control.',
+    tech: ['Django', 'RBAC', 'Bootstrap', 'SQLite'],
+    links: { live: '', repo: '' },
   },
   {
     id: 8,
-    title: "Insurance Claim Portal",
-    category: "Django",
-    status: "Done",
-    img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1200&auto=format&fit=crop",
-    desc: "Secure portal for users to submit claims and agents to track statuses with high data integrity.",
-    tech: ["Django", "Python", "Secure Auth"],
-    links: { live: "#", repo: "#" },
+    title: 'Insurance Claim Portal',
+    category: 'Django',
+    status: 'Done',
+    img: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Secure portal for claim submission, tracking, and workflow handling with strong data integrity.',
+    tech: ['Django', 'Python', 'Secure Auth'],
+    links: { live: '', repo: '' },
   },
   {
     id: 9,
-    title: "Food Ordering Site",
-    category: "Django",
-    status: "Beta",
-    img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1200&auto=format&fit=crop",
-    desc: "Dynamic e-commerce site featuring a real-time shopping cart and menu management APIs.",
-    tech: ["Django", "REST API", "JavaScript", "AJAX"],
-    links: { live: "#", repo: "#" },
+    title: 'Food Ordering Site',
+    category: 'Django',
+    status: 'Beta',
+    img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Dynamic food ordering site with real-time cart flow and menu management APIs.',
+    tech: ['Django', 'REST API', 'JavaScript', 'AJAX'],
+    links: { live: '', repo: '' },
   },
   {
     id: 10,
-    title: "Inventory Management",
-    category: "Django",
-    status: "Done",
-    img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop",
-    desc: "Automated system to track stock levels, generate reports, and manage supplier data.",
-    tech: ["Django", "MySQL", "Chart.js"],
-    links: { live: "#", repo: "#" },
+    title: 'Inventory Management',
+    category: 'Django',
+    status: 'Done',
+    img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Automated system to track stock, generate reports, and manage suppliers efficiently.',
+    tech: ['Django', 'MySQL', 'Chart.js'],
+    links: { live: '', repo: '' },
   },
-
   {
     id: 11,
-    title: "Headless E-Commerce",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=1200&auto=format&fit=crop",
-    desc: "Decoupled architecture style build (CMS + fast frontend).",
-    tech: ["Next.js", "WPGraphQL", "WooCommerce", "Tailwind"],
-    links: { live: "#", repo: "#" },
+    title: 'Headless E-Commerce',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Headless e-commerce architecture with fast frontend delivery and CMS flexibility.',
+    tech: ['Next.js', 'WPGraphQL', 'WooCommerce', 'Tailwind'],
+    links: { live: '', repo: '' },
   },
   {
     id: 12,
-    title: "Custom Real Estate Portal",
-    category: "Client Work",
-    status: "Done",
-    img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200&auto=format&fit=crop",
-    desc: "Advanced property listing site with custom post types, filtering and map integration.",
-    tech: ["Custom Theme", "ACF Pro", "Google Maps API", "PHP"],
-    links: { live: "#", repo: "#" },
+    title: 'Custom Real Estate Portal',
+    category: 'Client Work',
+    status: 'Done',
+    img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Advanced property portal with custom post types, smart filtering, and maps integration.',
+    tech: ['Custom Theme', 'ACF Pro', 'Google Maps API', 'PHP'],
+    links: { live: '', repo: '' },
   },
   {
     id: 13,
-    title: "Live Hospital website",
-    category: "Client Work",
-    status: "Plugin",
-    img: "https://images.unsplash.com/photo-1512678080530-7760d81faba6?q=80&w=1200&auto=format&fit=crop",
-    desc: "Sarthak Hospital, Agra – trusted multi-speciality care with advanced facilities, expert doctors, and 24x7 emergency support.",
-    tech: ["PHP", "Plugin Dev", "AJAX", "MySQL"],
-    links: { live: "https://tajtriptour.in/index.php?lang=en", repo: "#" },
+    title: 'Live Hospital Website',
+    category: 'Client Work',
+    status: 'Plugin',
+    img: 'https://images.unsplash.com/photo-1512678080530-7760d81faba6?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Hospital website with service sections, trust signals, and conversion-focused pages.',
+    tech: ['PHP', 'Plugin Dev', 'AJAX', 'MySQL'],
+    links: { live: 'https://tajtriptour.in/index.php?lang=en', repo: '' },
   },
   {
     id: 14,
-    title: "Point To Taxi",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop",
-    desc: "Live taxi/business website.",
-    tech: ["Client Work", "Live Website"],
-    links: { live: "http://pointtotaxi.in/", repo: "#" },
+    title: 'Point To Taxi',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Live taxi business website built for direct inquiries and service visibility.',
+    tech: ['Client Work', 'Live Website'],
+    links: { live: 'http://pointtotaxi.in', repo: '' },
   },
   {
     id: 15,
-    title: "The Dentist Studio",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=1200&auto=format&fit=crop",
-    desc: "Live dental clinic website.",
-    tech: ["Client Work", "Live Website"],
-    links: { live: "http://thedentiststudio.com/", repo: "#" },
+    title: 'The Dentist Studio',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Dental clinic website focused on clean branding, services, and appointment trust-building.',
+    tech: ['Client Work', 'Live Website'],
+    links: { live: 'http://thedentiststudio.com', repo: '' },
   },
   {
     id: 16,
-    title: "AUGC",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop",
-    desc: "Live organization website.",
-    tech: ["Client Work", "Live Website"],
-    links: { live: "http://augc.in/", repo: "#" },
+    title: 'AUGC',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Organization website built for online presence, credibility, and communication.',
+    tech: ['Client Work', 'Live Website'],
+    links: { live: 'http://augc.in', repo: '' },
   },
   {
     id: 17,
-    title: "AMDC Agra",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=1200&auto=format&fit=crop",
-    desc: "Live organization website.",
-    tech: ["Client Work", "Live Website"],
-    links: { live: "https://amdcagra.in/", repo: "#" },
+    title: 'AMDC Agra',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Organization website with modern structure and public-facing information layout.',
+    tech: ['Client Work', 'Live Website'],
+    links: { live: 'https://amdcagra.in', repo: '' },
   },
   {
     id: 18,
-    title: "Delhi Agra Jaipur Tour",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
-    desc: "Live tourism website.",
-    tech: ["Client Work", "Live Website"],
-    links: { live: "http://delhiagrajaipurtour.in/", repo: "#" },
+    title: 'Delhi Agra Jaipur Tour',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Tourism website designed for packages, discovery, and travel inquiries.',
+    tech: ['Client Work', 'Live Website'],
+    links: { live: 'http://delhiagrajaipurtour.in', repo: '' },
   },
   {
     id: 20,
-    title: "Aravstar",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop",
-    desc: "Live business website.",
-    tech: ["Client Work", "Live Website"],
-    links: { live: "https://aravstar.com/index.php", repo: "#" },
+    title: 'Aravstar',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Business website with corporate styling and structured lead-friendly pages.',
+    tech: ['Client Work', 'Live Website'],
+    links: { live: 'https://aravstar.com/index.php', repo: '' },
   },
   {
     id: 21,
-    title: "Taj Trip Tour (JD)",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1505839673365-e3971f8d9184?q=80&w=1200&auto=format&fit=crop",
-    desc: "Live tourism website (JD section).",
-    tech: ["Client Work", "Live Website"],
-    links: { live: "https://tajtriptour.in/JD/index.php", repo: "#" },
+    title: 'Taj Trip Tour JD',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1505839673365-e3971f8d9184?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Tourism website section focused on travel listing and trip discovery.',
+    tech: ['Client Work', 'Live Website'],
+    links: { live: 'https://tajtriptour.in/JD/index.php', repo: '' },
   },
   {
     id: 22,
-    title: "Yadu Hospital (Services)",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=1200&auto=format&fit=crop",
-    desc: "Live hospital services page.",
-    tech: ["Client Work", "Live Website"],
-    links: { live: "https://yaduhospital.com/service.html", repo: "#" },
+    title: 'Yadu Hospital Services',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Hospital services page built for trust, clarity, and service discoverability.',
+    tech: ['Client Work', 'Live Website'],
+    links: { live: 'https://yaduhospital.com/service.html', repo: '' },
   },
   {
     id: 23,
-    title: "Crown Plus",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1200&auto=format&fit=crop",
-    desc: "Live business website.",
-    tech: ["Client Work", "Live Website"],
-    links: { live: "http://crownplus.in/", repo: "#" },
+    title: 'Crown Plus',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Business website with simple conversion paths and polished visual identity.',
+    tech: ['Client Work', 'Live Website'],
+    links: { live: 'http://crownplus.in', repo: '' },
   },
   {
     id: 24,
-    title: "Chandra Metal",
-    category: "Client Work",
-    status: "Live",
-    img: "https://images.unsplash.com/photo-1581091215367-59ab6b56f1b4?q=80&w=1200&auto=format&fit=crop",
-    desc: "Live company website.",
-    tech: ["Client Work", "Live Website"],
-    links: { live: "https://www.chandrametal.com/", repo: "#" },
+    title: 'Chandra Metal',
+    category: 'Client Work',
+    status: 'Live',
+    img: 'https://images.unsplash.com/photo-1581091215367-59ab6b56f1b4?q=80&w=1200&auto=format&fit=crop',
+    desc: 'Industrial company website built for strong product and business visibility.',
+    tech: ['Client Work', 'Live Website'],
+    links: { live: 'https://www.chandrametal.com', repo: '' },
   },
 ];
 
 const Projects = () => {
+  const [bannerImg, setBannerImg] = useState('');
   const [dbProjects, setDbProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeStatus, setActiveStatus] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('latest');
   const [selectedTech, setSelectedTech] = useState('All');
   const [showLiveOnly, setShowLiveOnly] = useState(false);
+  const [activeFaq, setActiveFaq] = useState(null);
   const [visibleCount, setVisibleCount] = useState(6);
 
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [viewMode, setViewMode] = useState('grid');
+  const [selectedProject, setSelectedProject] = useState(null);
+
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchProjectsPageData = async () => {
       try {
-        const res = await api.get('/projects');
-        setDbProjects(Array.isArray(res.data) ? res.data : []);
+        const [projectsRes, pageImagesRes] = await Promise.allSettled([
+          api.get('/projects'),
+          api.get('/pageImages'),
+        ]);
+
+        if (
+          projectsRes.status === 'fulfilled' &&
+          Array.isArray(projectsRes.value?.data)
+        ) {
+          setDbProjects(projectsRes.value.data);
+        }
+
+        if (
+          pageImagesRes.status === 'fulfilled' &&
+          Array.isArray(pageImagesRes.value?.data)
+        ) {
+          const banner = pageImagesRes.value.data.find(
+            (img) =>
+              img?.title?.toLowerCase() === 'projects' ||
+              img?.page?.toLowerCase() === 'projects'
+          );
+          if (banner?.imageUrl) setBannerImg(banner.imageUrl);
+        }
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching projects page data:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchProjects();
+
+    fetchProjectsPageData();
   }, []);
 
   useEffect(() => {
@@ -288,11 +329,15 @@ const Projects = () => {
   }, [activeCategory, activeStatus, searchTerm, sortBy, selectedTech, showLiveOnly]);
 
   const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+    hidden: { opacity: 0, y: 26 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.55 } },
   };
 
-  const hasValidLink = (url) => url && url !== '#';
+  const hasValidLink = (url) =>
+    typeof url === 'string' && url.trim() !== '' && url.trim() !== '#';
+
+  const truncate = (text, len = 140) =>
+    text?.length > len ? `${text.slice(0, len)}...` : text || '';
 
   const getStatusClasses = (status = '') => {
     const value = status.toLowerCase();
@@ -305,26 +350,26 @@ const Projects = () => {
 
   const normalizeDbProjects = useMemo(() => {
     return dbProjects.map((project, index) => ({
-      id: project._id || `db-${index}`,
-      title: project.title || 'Untitled Project',
-      category: project.category || 'Custom Project',
-      status: project.status || 'Live',
-      img:
-        project.imageUrl ||
-        project.img ||
-        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
-      desc: project.description || project.desc || 'Project details will be available soon.',
-      tech: Array.isArray(project.tech)
+      id: project?._id || project?.id || `db-${index}`,
+      title: project?.title || 'Untitled Project',
+      category: project?.category || 'Custom Project',
+      status: project?.status || 'Live',
+      img: project?.imageUrl || project?.img || fallbackHeroImage,
+      desc:
+        project?.description ||
+        project?.desc ||
+        'Project details will be available soon.',
+      tech: Array.isArray(project?.tech)
         ? project.tech
-        : Array.isArray(project.technologies)
+        : Array.isArray(project?.technologies)
         ? project.technologies
         : [],
       links: {
-        live: project.liveLink || project?.links?.live || '#',
-        repo: project.repoLink || project?.links?.repo || '#',
+        live: project?.liveLink || project?.links?.live || '',
+        repo: project?.repoLink || project?.links?.repo || '',
       },
       source: 'database',
-      createdOrder: 1000 + index,
+      createdOrder: 1000 - index,
     }));
   }, [dbProjects]);
 
@@ -337,17 +382,19 @@ const Projects = () => {
     return [...local, ...normalizeDbProjects];
   }, [normalizeDbProjects]);
 
-  const categories = useMemo(() => {
-    return ['All', ...new Set(allProjects.map((project) => project.category))];
-  }, [allProjects]);
+  const categories = useMemo(
+    () => ['All', ...new Set(allProjects.map((project) => project.category))],
+    [allProjects]
+  );
 
-  const statuses = useMemo(() => {
-    return ['All', ...new Set(allProjects.map((project) => project.status))];
-  }, [allProjects]);
+  const statuses = useMemo(
+    () => ['All', ...new Set(allProjects.map((project) => project.status))],
+    [allProjects]
+  );
 
   const techOptions = useMemo(() => {
     const techs = allProjects.flatMap((project) => project.tech || []);
-    return ['All', ...new Set(techs)].slice(0, 20);
+    return ['All', ...new Set(techs)].slice(0, 18);
   }, [allProjects]);
 
   const filteredProjects = useMemo(() => {
@@ -361,13 +408,12 @@ const Projects = () => {
       const matchesTech =
         selectedTech === 'All' || project.tech.includes(selectedTech);
       const matchesLive = !showLiveOnly || project.status === 'Live';
+
       const search = searchTerm.trim().toLowerCase();
-      const matchesSearch =
-        !search ||
-        project.title.toLowerCase().includes(search) ||
-        project.desc.toLowerCase().includes(search) ||
-        project.category.toLowerCase().includes(search) ||
-        project.tech.join(' ').toLowerCase().includes(search);
+      const haystack = `${project.title} ${project.desc} ${project.category} ${project.tech.join(
+        ' '
+      )}`.toLowerCase();
+      const matchesSearch = !search || haystack.includes(search);
 
       return (
         matchesCategory &&
@@ -395,55 +441,59 @@ const Projects = () => {
     }
 
     return data;
-  }, [allProjects, activeCategory, activeStatus, searchTerm, selectedTech, showLiveOnly, sortBy]);
+  }, [
+    allProjects,
+    activeCategory,
+    activeStatus,
+    searchTerm,
+    selectedTech,
+    showLiveOnly,
+    sortBy,
+  ]);
 
-  const visibleProjects = useMemo(() => {
-    return filteredProjects.slice(0, visibleCount);
-  }, [filteredProjects, visibleCount]);
-
-  const spotlightProject = useMemo(() => {
-    return filteredProjects.find((project) => hasValidLink(project.links?.live)) || filteredProjects[0];
-  }, [filteredProjects]);
+  const visibleProjects = useMemo(
+    () => filteredProjects.slice(0, visibleCount),
+    [filteredProjects, visibleCount]
+  );
 
   const featuredProjects = useMemo(() => {
     return allProjects
-      .filter((project) => project.status === 'Live' && hasValidLink(project.links?.live))
+      .filter(
+        (project) => project.status === 'Live' && hasValidLink(project.links?.live)
+      )
       .slice(0, 3);
   }, [allProjects]);
 
-  const stats = useMemo(() => {
-    const liveCount = allProjects.filter((project) => project.status === 'Live').length;
-    const categoryCount = new Set(allProjects.map((project) => project.category)).size;
-    const clientWorkCount = allProjects.filter(
-      (project) => project.category === 'Client Work'
-    ).length;
-    const techCount = new Set(allProjects.flatMap((project) => project.tech || [])).size;
+  const spotlightProject = useMemo(() => {
+    return filteredProjects.find((p) => hasValidLink(p.links?.live)) || filteredProjects[0] || null;
+  }, [filteredProjects]);
 
+  const stats = useMemo(() => {
     return [
       { number: allProjects.length, label: 'Total Projects' },
-      { number: liveCount, label: 'Live Projects' },
-      { number: categoryCount, label: 'Categories' },
-      { number: techCount, label: 'Tech Stacks' },
-      { number: clientWorkCount, label: 'Client Works' },
+      {
+        number: allProjects.filter((p) => p.status === 'Live').length,
+        label: 'Live Projects',
+      },
+      {
+        number: new Set(allProjects.map((p) => p.category)).size,
+        label: 'Categories',
+      },
+      {
+        number: new Set(allProjects.flatMap((p) => p.tech)).size,
+        label: 'Tech Stacks',
+      },
+      {
+        number: allProjects.filter((p) => p.category === 'Client Work').length,
+        label: 'Client Works',
+      },
     ];
-  }, [allProjects]);
-
-  const categoryHighlights = useMemo(() => {
-    const map = {};
-    allProjects.forEach((project) => {
-      map[project.category] = (map[project.category] || 0) + 1;
-    });
-
-    return Object.entries(map).map(([name, count]) => ({
-      name,
-      count,
-    }));
   }, [allProjects]);
 
   const topTechStacks = useMemo(() => {
     const map = {};
     allProjects.forEach((project) => {
-      (project.tech || []).forEach((tech) => {
+      project.tech.forEach((tech) => {
         map[tech] = (map[tech] || 0) + 1;
       });
     });
@@ -454,80 +504,230 @@ const Projects = () => {
       .slice(0, 8);
   }, [allProjects]);
 
-  const processSteps = [
+  const industries = [
     {
-      step: '01',
-      title: 'Planning',
-      desc: 'We understand the business goal, user journey and technical scope before building.',
-      icon: <FaRocket />,
+      icon: <FaHeartbeat />,
+      name: 'Healthcare & Medical',
+      desc: 'Patient portals, clinic websites, and medical management systems.',
     },
     {
-      step: '02',
-      title: 'Design & Build',
-      desc: 'We create responsive interfaces, project structure and scalable frontend or backend flows.',
-      icon: <FaLaptopCode />,
+      icon: <FaGraduationCap />,
+      name: 'EdTech & E-Learning',
+      desc: 'Course platforms, student portals, and institute management products.',
     },
     {
-      step: '03',
-      title: 'Testing',
-      desc: 'We check responsiveness, navigation, performance and real-world usability before launch.',
-      icon: <FaCheckCircle />,
+      icon: <FaShoppingCart />,
+      name: 'E-Commerce & Retail',
+      desc: 'Custom storefronts, inventory systems, and conversion-ready catalog experiences.',
     },
     {
-      step: '04',
-      title: 'Launch & Improve',
-      desc: 'We deploy, monitor and continue improving based on feedback and project goals.',
-      icon: <FaChartLine />,
+      icon: <FaBuilding />,
+      name: 'Corporate & Real Estate',
+      desc: 'Business portfolios, listing portals, and lead-generation-focused websites.',
     },
   ];
 
   const testimonials = [
     {
-      name: 'Client Feedback',
-      role: 'Business Website Project',
+      name: 'Dr. Sharma',
+      role: 'Clinic Owner',
       quote:
-        'The site was delivered with a clean layout, strong responsiveness and much better user experience than our old version.',
+        'The medical portal feels fast, professional, and much easier for patients to use than our previous system.',
     },
     {
-      name: 'Startup Founder',
-      role: 'Web App Build',
+      name: 'Rajesh V.',
+      role: 'Startup Founder',
       quote:
-        'Communication was smooth, the interface felt modern and the project structure was clear from day one.',
+        'Communication stayed smooth throughout the project and the final architecture felt clean and scalable.',
     },
     {
-      name: 'Local Brand Owner',
-      role: 'Marketing + Website',
+      name: 'Anita K.',
+      role: 'E-Commerce Director',
       quote:
-        'Our project was not just made attractive, it was made practical for real users and business growth.',
+        'The frontend performance improved a lot and the user journey became noticeably clearer after launch.',
     },
   ];
 
   const faqs = [
     {
-      q: 'Can this page show both local and admin projects together?',
-      a: 'Yes, this code merges your hardcoded portfolio projects with database projects from the API.',
+      q: 'Do you provide post-launch support and maintenance?',
+      a: 'Yes, maintenance and ongoing improvement can be planned to keep the application secure, updated, and high-performing after launch.',
     },
     {
-      q: 'Can I filter by category, status and technology?',
-      a: 'Yes, this page includes category filters, status filters, tech filters, search and sorting.',
+      q: 'Can you work with an existing codebase?',
+      a: 'Yes, existing MERN, Django, or custom projects can be audited, optimized, redesigned, and scaled as needed.',
     },
     {
-      q: 'Is this page responsive?',
-      a: 'Yes, layouts are built with responsive grid, flexible sections and mobile-friendly controls.',
+      q: 'How long does a typical custom web app take?',
+      a: 'A focused MVP can take a few weeks, while larger multi-module systems naturally take longer depending on complexity.',
     },
     {
-      q: 'Can I add more projects later?',
-      a: 'Yes, you can keep adding projects to the local array or from your admin panel API.',
+      q: 'Will the final product be mobile responsive and SEO friendly?',
+      a: 'Yes, the build approach stays mobile-first with responsive layouts, clear structure, and technical SEO-friendly practices.',
     },
   ];
 
+  const processSteps = [
+    {
+      step: '01',
+      title: 'Planning',
+      desc: 'We understand the business goal, user journey, and technical scope before building.',
+      icon: <FaRocket />,
+    },
+    {
+      step: '02',
+      title: 'Design & Build',
+      desc: 'We create responsive interfaces, solid structure, and scalable frontend or backend flows.',
+      icon: <FaLaptopCode />,
+    },
+    {
+      step: '03',
+      title: 'Testing',
+      desc: 'We test responsiveness, navigation, performance, and practical real-world usability.',
+      icon: <FaCheckCircle />,
+    },
+    {
+      step: '04',
+      title: 'Launch & Improve',
+      desc: 'We deploy, monitor, and continue refining based on feedback and project goals.',
+      icon: <FaChartLine />,
+    },
+  ];
+
+  const activeFilterCount = [
+    activeCategory !== 'All',
+    activeStatus !== 'All',
+    selectedTech !== 'All',
+    showLiveOnly,
+    !!searchTerm.trim(),
+  ].filter(Boolean).length;
+
+  const clearFilters = () => {
+    setActiveCategory('All');
+    setActiveStatus('All');
+    setSearchTerm('');
+    setSortBy('latest');
+    setSelectedTech('All');
+    setShowLiveOnly(false);
+    setShowMobileFilters(false);
+  };
+
+  const openProject = (project) => setSelectedProject(project);
+  const closeProject = () => setSelectedProject(null);
+
+  const filterPanel = (
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="relative lg:col-span-2 group">
+          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition" />
+          <input
+            type="text"
+            placeholder="Search by title, tech, category..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-gray-50 border border-gray-200 text-gray-800 font-medium rounded-2xl py-3.5 pl-11 pr-10 focus:outline-none focus:border-blue-500 transition shadow-inner"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+              type="button"
+            >
+              <FaTimes />
+            </button>
+          )}
+        </div>
+
+        <div className="relative">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="w-full appearance-none bg-gray-50 border border-gray-200 text-gray-800 font-medium rounded-2xl py-3.5 px-4 pr-10 focus:outline-none focus:border-blue-500 transition cursor-pointer shadow-inner"
+          >
+            <option value="latest">Sort: Latest</option>
+            <option value="live-first">Sort: Live First</option>
+            <option value="name-asc">Sort: A-Z</option>
+            <option value="name-desc">Sort: Z-A</option>
+            <option value="category">Sort: Category</option>
+          </select>
+          <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+        </div>
+
+        <label className="flex items-center justify-center gap-3 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm font-bold text-gray-700 cursor-pointer hover:bg-gray-100 transition shadow-inner">
+          <input
+            type="checkbox"
+            checked={showLiveOnly}
+            onChange={(e) => setShowLiveOnly(e.target.checked)}
+            className="accent-blue-600 w-4 h-4"
+          />
+          Show Live Only
+        </label>
+      </div>
+
+      <div className="flex flex-wrap justify-center gap-2">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`px-4 py-2 rounded-full text-sm font-bold transition duration-300 ${
+              activeCategory === cat
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-400'
+            }`}
+            type="button"
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap justify-center gap-2">
+        {statuses.map((status) => (
+          <button
+            key={status}
+            onClick={() => setActiveStatus(status)}
+            className={`px-4 py-2 rounded-full text-sm font-bold transition duration-300 ${
+              activeStatus === status
+                ? 'bg-gray-900 text-white shadow-md'
+                : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-500'
+            }`}
+            type="button"
+          >
+            {status}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap justify-center gap-2">
+        {techOptions.map((tech) => (
+          <button
+            key={tech}
+            onClick={() => setSelectedTech(tech)}
+            className={`px-3.5 py-2 rounded-full text-xs md:text-sm font-bold transition ${
+              selectedTech === tech
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-purple-50 text-purple-700 border border-purple-100 hover:bg-purple-100'
+            }`}
+            type="button"
+          >
+            {tech}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50 font-sans overflow-hidden pb-20">
+    <div className="min-h-screen bg-gray-50 font-sans overflow-hidden pb-24 selection:bg-blue-600 selection:text-white">
       {/* Hero */}
-      <section className="relative bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 text-white py-24 md:py-32 px-6 overflow-hidden border-b-4 border-blue-600">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-        <div className="absolute top-0 left-0 w-72 h-72 bg-blue-500/20 blur-3xl rounded-full"></div>
-        <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-500/20 blur-3xl rounded-full"></div>
+      <section
+        className="relative text-white py-24 md:py-32 px-6 overflow-hidden border-b-4 border-blue-600 bg-cover bg-center"
+        style={{ backgroundImage: `url('${bannerImg || fallbackHeroImage}')` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-950/95 via-blue-950/90 to-gray-900/95"></div>
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/20 blur-[100px] rounded-full"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 blur-[100px] rounded-full"></div>
 
         <motion.div
           initial="hidden"
@@ -535,37 +735,42 @@ const Projects = () => {
           variants={fadeUp}
           className="max-w-5xl mx-auto text-center relative z-10"
         >
-          <span className="inline-flex px-4 py-2 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-200 text-xs md:text-sm uppercase tracking-[0.2em] font-semibold mb-6">
+          <span className="inline-flex px-4 py-2 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-200 text-xs md:text-sm uppercase tracking-[0.2em] font-semibold mb-6 backdrop-blur-sm">
             Advanced Portfolio Showcase
           </span>
 
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight">
-            Live Projects, Client Work & Real Case Studies
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight leading-tight">
+            Live Projects, Client Work{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+              Real Case Studies
+            </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-10">
-            Explore MERN stack builds, Django applications and real client websites with advanced filters, search, sorting and live project access.
+          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-10 font-medium">
+            Explore MERN stack builds, Django applications and real client websites with advanced filters, smooth browsing, and direct live project access.
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <a
+              href="#portfolio"
+              className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full text-lg transition duration-300 shadow-[0_0_20px_rgba(37,99,235,0.4)] inline-flex items-center group"
+            >
+              Explore Portfolio
+              <FaArrowRight className="ml-2 group-hover:translate-x-1 transition" />
+            </a>
+
             <Link
               to="/contact"
-              className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full text-lg transition duration-300 inline-flex items-center"
+              className="border-2 border-gray-500 hover:border-white hover:bg-white hover:text-gray-900 text-white font-bold py-4 px-8 rounded-full text-lg transition duration-300"
             >
-              Start Your Project <FaArrowRight className="ml-2" />
-            </Link>
-            <Link
-              to="/services"
-              className="border border-gray-500 hover:border-white text-white font-bold py-4 px-8 rounded-full text-lg transition duration-300"
-            >
-              View Services
+              Start Your Project
             </Link>
           </div>
         </motion.div>
       </section>
 
       {/* Stats */}
-      <section className="bg-blue-600 text-white py-12 px-6">
+      <section className="bg-blue-600 text-white py-12 px-6 shadow-inner relative z-20">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8 text-center">
           {stats.map((stat, index) => (
             <motion.div
@@ -575,8 +780,8 @@ const Projects = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.07 }}
             >
-              <h3 className="text-3xl md:text-5xl font-extrabold mb-2">{stat.number}+</h3>
-              <p className="text-blue-100 uppercase tracking-wider text-xs md:text-sm font-semibold">
+              <h3 className="text-3xl md:text-5xl font-black mb-2">{stat.number}</h3>
+              <p className="text-blue-200 uppercase tracking-widest text-xs md:text-sm font-bold">
                 {stat.label}
               </p>
             </motion.div>
@@ -584,22 +789,57 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* Featured live projects */}
+      {/* Industries */}
+      <section className="py-20 px-6 bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900">
+              Industries We Empower
+            </h2>
+            <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-lg font-medium">
+              Tailored product experiences for business use-cases across different domains.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {industries.map((ind, idx) => (
+              <motion.div
+                key={idx}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                transition={{ delay: idx * 0.08 }}
+                className="bg-gray-50 p-8 rounded-3xl border border-gray-100 hover:shadow-xl hover:border-blue-200 transition duration-300 group"
+              >
+                <div className="text-4xl text-blue-500 mb-6 group-hover:scale-110 transition duration-300">
+                  {ind.icon}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{ind.name}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{ind.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured */}
       {featuredProjects.length > 0 && (
-        <section className="py-20 md:py-24 px-6 bg-white">
+        <section className="py-20 md:py-24 px-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
               <div>
-                <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">
+                <h2 className="text-3xl md:text-5xl font-black text-gray-900">
                   Featured Live Projects
                 </h2>
-                <p className="text-gray-600 mt-3 max-w-2xl text-lg">
+                <p className="text-gray-600 mt-3 max-w-2xl text-lg font-medium">
                   Directly accessible live websites from your portfolio.
                 </p>
               </div>
 
-              <div className="inline-flex items-center text-sm font-semibold text-blue-600 bg-blue-50 px-4 py-2 rounded-full">
-                <FaGlobe className="mr-2" /> Live Showcase
+              <div className="inline-flex items-center text-sm font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-full">
+                <FaGlobe className="mr-2" />
+                Live Showcase
               </div>
             </div>
 
@@ -612,9 +852,9 @@ const Projects = () => {
                   viewport={{ once: true }}
                   variants={fadeUp}
                   transition={{ delay: index * 0.08 }}
-                  className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition group"
+                  className="bg-white border border-gray-100 rounded-[2rem] overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition duration-300 group flex flex-col"
                 >
-                  <div className="h-64 overflow-hidden bg-gray-100">
+                  <div className="h-64 overflow-hidden bg-gray-100 relative">
                     <img
                       src={project.img}
                       alt={project.title}
@@ -622,40 +862,45 @@ const Projects = () => {
                     />
                   </div>
 
-                  <div className="p-7">
-                    <div className="flex items-center justify-between gap-4 mb-4">
-                      <span className="bg-gray-100 text-gray-700 text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">
+                  <div className="p-8 flex flex-col flex-grow">
+                    <div className="flex justify-between gap-4 mb-4">
+                      <span className="bg-gray-100 text-gray-700 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-md">
                         {project.category}
                       </span>
                       <span
-                        className={`border text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full ${getStatusClasses(project.status)}`}
+                        className={`border text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-md ${getStatusClasses(
+                          project.status
+                        )}`}
                       >
                         {project.status}
                       </span>
                     </div>
 
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3">{project.title}</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed mb-6">{project.desc}</p>
+                    <h3 className="text-2xl font-black text-gray-900 mb-3 group-hover:text-blue-600 transition">
+                      {project.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow">
+                      {truncate(project.desc, 140)}
+                    </p>
 
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {project.tech.slice(0, 4).map((item) => (
-                        <span
-                          key={item}
-                          className="bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 rounded-full text-xs font-semibold"
-                        >
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-
-                    <a
-                      href={project.links.live}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center justify-center w-full bg-gray-900 hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl transition"
+                    <button
+                      onClick={() => openProject(project)}
+                      className="mb-4 text-blue-600 font-bold text-sm inline-flex items-center"
+                      type="button"
                     >
-                      Visit Live Site <FaExternalLinkAlt className="ml-2" />
-                    </a>
+                      Quick View <FaArrowRight className="ml-2" />
+                    </button>
+
+                    {hasValidLink(project.links.live) && (
+                      <a
+                        href={project.links.live}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center justify-center w-full bg-gray-900 hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl transition shadow-md mt-auto"
+                      >
+                        Visit Live Site <FaExternalLinkAlt className="ml-2" />
+                      </a>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -666,7 +911,7 @@ const Projects = () => {
 
       {/* Spotlight */}
       {spotlightProject && (
-        <section className="py-20 px-6 bg-gray-50 border-y border-gray-100">
+        <section className="py-20 px-6 bg-white border-y border-gray-100">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial="hidden"
@@ -695,30 +940,60 @@ const Projects = () => {
                 <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
                   {spotlightProject.category}
                 </span>
-                <span className={`border px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusClasses(spotlightProject.status)}`}>
+                <span
+                  className={`border px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusClasses(
+                    spotlightProject.status
+                  )}`}
+                >
                   {spotlightProject.status}
                 </span>
               </div>
 
-              <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-5">
+              <h2 className="text-3xl md:text-5xl font-black text-gray-900 mb-5">
                 {spotlightProject.title}
               </h2>
 
-              <p className="text-lg text-gray-600 leading-relaxed mb-6">
+              <p className="text-lg text-gray-600 leading-relaxed mb-8">
                 {spotlightProject.desc}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 {[
-                  { icon: <FaLayerGroup />, label: 'Stack', value: spotlightProject.tech.slice(0, 3).join(', ') || 'Custom Stack' },
-                  { icon: <FaClock />, label: 'Status', value: spotlightProject.status },
-                  { icon: <FaServer />, label: 'Type', value: spotlightProject.category },
-                  { icon: <FaStar />, label: 'Source', value: spotlightProject.source === 'database' ? 'Admin Managed' : 'Portfolio Listed' },
+                  {
+                    icon: <FaLayerGroup />,
+                    label: 'Stack',
+                    value: spotlightProject.tech.slice(0, 3).join(', ') || 'Custom Stack',
+                  },
+                  {
+                    icon: <FaClock />,
+                    label: 'Status',
+                    value: spotlightProject.status,
+                  },
+                  {
+                    icon: <FaServer />,
+                    label: 'Type',
+                    value: spotlightProject.category,
+                  },
+                  {
+                    icon: <FaStar />,
+                    label: 'Source',
+                    value:
+                      spotlightProject.source === 'database'
+                        ? 'Admin Managed'
+                        : 'Portfolio Listed',
+                  },
                 ].map((item) => (
-                  <div key={item.label} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+                  <div
+                    key={item.label}
+                    className="bg-gray-50 rounded-2xl border border-gray-100 p-4 shadow-sm"
+                  >
                     <div className="text-blue-600 mb-2">{item.icon}</div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">{item.label}</p>
-                    <p className="text-sm font-semibold text-gray-900 mt-1">{item.value}</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">
+                      {item.label}
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900 mt-1">
+                      {item.value}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -735,16 +1010,13 @@ const Projects = () => {
                   </a>
                 )}
 
-                {hasValidLink(spotlightProject.links?.repo) && (
-                  <a
-                    href={spotlightProject.links.repo}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center border border-gray-300 hover:border-gray-500 text-gray-900 font-bold py-4 px-8 rounded-full transition"
-                  >
-                    View Repo <FaGithub className="ml-2" />
-                  </a>
-                )}
+                <button
+                  type="button"
+                  onClick={() => openProject(spotlightProject)}
+                  className="inline-flex items-center justify-center border border-gray-300 hover:border-gray-500 text-gray-900 font-bold py-4 px-8 rounded-full transition"
+                >
+                  Quick Preview <FaArrowRight className="ml-2" />
+                </button>
               </div>
             </motion.div>
           </div>
@@ -752,282 +1024,263 @@ const Projects = () => {
       )}
 
       {/* Filters */}
-      <section className="px-6 py-8 bg-white sticky top-0 z-20 backdrop-blur-sm border-y border-gray-100 shadow-sm">
+      <section
+        id="portfolio"
+        className="px-6 py-6 bg-white/90 sticky top-0 z-40 backdrop-blur-md border-y border-gray-200 shadow-sm"
+      >
         <div className="max-w-7xl mx-auto space-y-5">
-          <div className="flex items-center justify-center text-sm font-semibold text-gray-500">
-            <FaFilter className="mr-2" /> Advanced Portfolio Filters
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-            <div className="relative lg:col-span-2">
-              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by title, tech, category..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-full py-3 pl-11 pr-4 focus:outline-none focus:border-blue-500 transition"
-              />
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-center justify-center lg:justify-start text-sm font-bold text-gray-500 uppercase tracking-widest">
+              <FaFilter className="mr-2" />
+              Dynamic Filters
             </div>
 
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full appearance-none bg-gray-50 border border-gray-200 text-gray-800 rounded-full py-3 px-4 pr-10 focus:outline-none focus:border-blue-500 transition"
+            <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3">
+              <div className="inline-flex bg-gray-100 border border-gray-200 rounded-2xl p-1">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold inline-flex items-center ${
+                    viewMode === 'grid'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-500'
+                  }`}
+                >
+                  <FaThLarge className="mr-2" />
+                  Grid
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold inline-flex items-center ${
+                    viewMode === 'list'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-500'
+                  }`}
+                >
+                  <FaListUl className="mr-2" />
+                  List
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowMobileFilters((prev) => !prev)}
+                className="lg:hidden inline-flex items-center bg-gray-900 text-white px-4 py-2.5 rounded-2xl text-sm font-bold"
               >
-                <option value="latest">Sort: Latest</option>
-                <option value="live-first">Sort: Live First</option>
-                <option value="name-asc">Sort: A-Z</option>
-                <option value="name-desc">Sort: Z-A</option>
-                <option value="category">Sort: Category</option>
-              </select>
-              <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <FaSlidersH className="mr-2" />
+                Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
+              </button>
+
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="text-sm font-bold text-red-500 hover:text-red-700 underline underline-offset-4 transition"
+                  type="button"
+                >
+                  Clear All
+                </button>
+              )}
             </div>
-
-            <label className="flex items-center justify-center gap-3 bg-gray-50 border border-gray-200 rounded-full px-4 py-3 text-sm font-semibold text-gray-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showLiveOnly}
-                onChange={(e) => setShowLiveOnly(e.target.checked)}
-                className="accent-blue-600"
-              />
-              Show Live Only
-            </label>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition ${
-                  activeCategory === category
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'bg-gray-50 text-gray-700 border border-gray-200 hover:border-blue-400'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+          <div className="hidden lg:block">{filterPanel}</div>
 
-          <div className="flex flex-wrap justify-center gap-3">
-            {statuses.map((status) => (
-              <button
-                key={status}
-                onClick={() => setActiveStatus(status)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition ${
-                  activeStatus === status
-                    ? 'bg-gray-900 text-white shadow-lg'
-                    : 'bg-gray-50 text-gray-700 border border-gray-200 hover:border-gray-400'
-                }`}
-              >
-                {status}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-2">
-            {techOptions.map((tech) => (
-              <button
-                key={tech}
-                onClick={() => setSelectedTech(tech)}
-                className={`px-4 py-2 rounded-full text-xs md:text-sm font-semibold transition ${
-                  selectedTech === tech
-                    ? 'bg-purple-600 text-white shadow-lg'
-                    : 'bg-purple-50 text-purple-700 border border-purple-100 hover:bg-purple-100'
-                }`}
-              >
-                {tech}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Category summary */}
-      <section className="py-16 px-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-            {categoryHighlights.map((item, index) => (
+          <AnimatePresence>
+            {showMobileFilters && (
               <motion.div
-                key={item.name}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                transition={{ delay: index * 0.05 }}
-                className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg transition"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="lg:hidden overflow-hidden"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl">
-                    <FaCode />
-                  </div>
-                  <span className="text-2xl font-extrabold text-gray-900">{item.count}</span>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">{item.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">Projects in this category</p>
+                <div className="pt-2">{filterPanel}</div>
               </motion.div>
-            ))}
-          </div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
 
-      {/* Tech stack insights */}
-      <section className="py-20 px-6 bg-white border-y border-gray-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">
-              Stack & Technology Highlights
-            </h2>
-            <p className="text-gray-600 mt-3 max-w-2xl mx-auto text-lg">
-              A quick view of the technologies most visible across your portfolio.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
-            {topTechStacks.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                transition={{ delay: index * 0.05 }}
-                className="bg-gray-50 rounded-2xl border border-gray-100 p-5 text-center hover:shadow-lg transition"
-              >
-                <div className="text-2xl text-blue-600 flex justify-center mb-3">
-                  <FaLayerGroup />
-                </div>
-                <h3 className="text-sm font-bold text-gray-900">{item.name}</h3>
-                <p className="text-xs text-gray-500 mt-1">{item.count} projects</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* All projects */}
+      {/* Projects */}
       <section className="max-w-7xl mx-auto px-6 mt-16">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 mb-10">
           <div>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">
-              All Projects
-            </h2>
-            <p className="text-gray-600 mt-3 text-lg">
-              Showing {visibleProjects.length} of {filteredProjects.length} project{filteredProjects.length !== 1 ? 's' : ''}.
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900">All Projects</h2>
+            <p className="text-gray-500 mt-2 font-medium">
+              Showing {visibleProjects.length} of {filteredProjects.length} results.
             </p>
           </div>
+
+          {activeFilterCount > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {searchTerm && (
+                <span className="bg-white border border-gray-200 rounded-full px-3 py-1.5 text-xs font-bold text-gray-600">
+                  Search: {searchTerm}
+                </span>
+              )}
+              {activeCategory !== 'All' && (
+                <span className="bg-white border border-gray-200 rounded-full px-3 py-1.5 text-xs font-bold text-gray-600">
+                  Category: {activeCategory}
+                </span>
+              )}
+              {activeStatus !== 'All' && (
+                <span className="bg-white border border-gray-200 rounded-full px-3 py-1.5 text-xs font-bold text-gray-600">
+                  Status: {activeStatus}
+                </span>
+              )}
+              {selectedTech !== 'All' && (
+                <span className="bg-white border border-gray-200 rounded-full px-3 py-1.5 text-xs font-bold text-gray-600">
+                  Tech: {selectedTech}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {loading ? (
           <div className="flex justify-center items-center h-40">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600 border-opacity-75"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600"></div>
           </div>
+        ) : filteredProjects.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white border border-gray-200 rounded-3xl p-12 text-center shadow-sm max-w-2xl mx-auto mt-10"
+          >
+            <div className="text-6xl text-gray-300 flex justify-center mb-6">
+              <FaSearch />
+            </div>
+            <h3 className="text-2xl font-black text-gray-900 mb-3">No Projects Found</h3>
+            <p className="text-gray-500 mb-8 font-medium">
+              We couldn&apos;t find any projects matching your current filters. Try adjusting your search criteria.
+            </p>
+            <button
+              onClick={clearFilters}
+              className="mt-4 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition"
+              type="button"
+            >
+              Reset Filters
+            </button>
+          </motion.div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              {visibleProjects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  variants={fadeUp}
-                  transition={{ delay: index * 0.05 }}
-                  className="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition duration-300 flex flex-col group"
-                >
-                  <div className="h-72 bg-gray-200 overflow-hidden relative">
-                    <img
-                      src={project.img}
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
-                    />
-
-                    <div className="absolute top-5 left-5 bg-gray-900/90 text-white text-xs font-bold px-4 py-2 rounded-md uppercase tracking-wider shadow-lg">
-                      {project.category}
-                    </div>
-
+            <motion.div
+              layout
+              className={
+                viewMode === 'grid'
+                  ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8'
+                  : 'grid grid-cols-1 gap-6'
+              }
+            >
+              <AnimatePresence>
+                {visibleProjects.map((project) => (
+                  <motion.div
+                    layout
+                    key={project.id}
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ duration: 0.25 }}
+                    className={`bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition duration-300 group ${
+                      viewMode === 'list'
+                        ? 'grid grid-cols-1 lg:grid-cols-[340px_1fr]'
+                        : 'flex flex-col'
+                    }`}
+                  >
                     <div
-                      className={`absolute top-5 right-5 border text-xs font-bold px-4 py-2 rounded-md uppercase tracking-wider shadow-lg ${getStatusClasses(project.status)}`}
+                      className={`bg-gray-200 overflow-hidden relative ${
+                        viewMode === 'list' ? 'h-64 lg:h-full' : 'h-56'
+                      }`}
                     >
-                      {project.status}
+                      <img
+                        src={project.img}
+                        alt={project.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                      />
+                      <div className="absolute top-4 left-4 bg-gray-900/90 text-white text-[10px] font-black px-3 py-1.5 rounded uppercase tracking-widest backdrop-blur-sm">
+                        {project.category}
+                      </div>
+                      <div
+                        className={`absolute top-4 right-4 border text-[10px] font-black px-3 py-1.5 rounded uppercase tracking-widest backdrop-blur-sm ${getStatusClasses(
+                          project.status
+                        )}`}
+                      >
+                        {project.status}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="p-8 flex-grow flex flex-col">
-                    <div className="flex items-center gap-3 mb-4 text-xs flex-wrap">
-                      <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
-                        {project.source === 'database' ? 'Admin Project' : 'Portfolio Project'}
-                      </span>
-                      {hasValidLink(project.links?.live) && (
-                        <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
-                          Live URL
+                    <div className="p-6 lg:p-7 flex-grow flex flex-col">
+                      <div className="flex items-center gap-3 mb-4 text-xs flex-wrap">
+                        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+                          {project.source === 'database' ? 'Admin Project' : 'Portfolio Project'}
                         </span>
-                      )}
-                    </div>
+                        {hasValidLink(project.links?.live) && (
+                          <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+                            Live URL
+                          </span>
+                        )}
+                      </div>
 
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                      {project.title}
-                    </h3>
+                      <h3 className="text-xl md:text-2xl font-black text-gray-900 mb-3 group-hover:text-blue-600 transition">
+                        {project.title}
+                      </h3>
 
-                    <p className="text-gray-600 mb-6 leading-relaxed flex-grow">{project.desc}</p>
+                      <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-grow font-medium">
+                        {truncate(project.desc, viewMode === 'list' ? 220 : 140)}
+                      </p>
 
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {project.tech.map((item) => (
-                        <span
-                          key={item}
-                          className="bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1 rounded-full text-xs font-semibold"
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {project.tech.slice(0, 5).map((item) => (
+                          <button
+                            key={item}
+                            onClick={() => setSelectedTech(item)}
+                            className="bg-gray-100 text-gray-600 border border-gray-200 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-blue-50 hover:text-blue-700 hover:border-blue-100 transition"
+                            type="button"
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-gray-100">
+                        {hasValidLink(project.links?.live) ? (
+                          <a
+                            href={project.links.live}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center justify-center bg-gray-900 hover:bg-blue-600 text-white font-bold py-2.5 px-4 rounded-lg text-sm transition"
+                          >
+                            Live <FaExternalLinkAlt className="ml-2 text-xs" />
+                          </a>
+                        ) : (
+                          <div className="flex items-center justify-center bg-gray-50 text-gray-500 border border-gray-200 font-bold py-2.5 px-4 rounded-lg text-sm">
+                            <FaCheckCircle className="mr-2" />
+                            Done
+                          </div>
+                        )}
+
+                        <button
+                          onClick={() => openProject(project)}
+                          type="button"
+                          className="flex items-center justify-center bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 font-bold py-2.5 px-4 rounded-lg text-sm transition"
                         >
-                          {item}
-                        </span>
-                      ))}
+                          View <FaArrowRight className="ml-2 text-xs" />
+                        </button>
+                      </div>
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-auto">
-                      {hasValidLink(project.links?.live) ? (
-                        <a
-                          href={project.links.live}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center justify-center bg-gray-900 hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-xl transition"
-                        >
-                          Live Demo <FaExternalLinkAlt className="ml-2" />
-                        </a>
-                      ) : (
-                        <div className="flex items-center justify-center bg-emerald-50 text-emerald-700 border border-emerald-100 font-bold py-3.5 px-4 rounded-xl">
-                          <FaCheckCircle className="mr-2" /> Delivered
-                        </div>
-                      )}
-
-                      {hasValidLink(project.links?.repo) ? (
-                        <a
-                          href={project.links.repo}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center justify-center bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 font-bold py-3.5 px-4 rounded-xl transition"
-                        >
-                          Repo <FaGithub className="ml-2" />
-                        </a>
-                      ) : (
-                        <div className="flex items-center justify-center bg-gray-50 text-gray-500 border border-gray-200 font-semibold py-3.5 px-4 rounded-xl">
-                          Repository Private
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
 
             {visibleCount < filteredProjects.length && (
               <div className="text-center mt-12">
                 <button
                   onClick={() => setVisibleCount((prev) => prev + 6)}
-                  className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full transition"
+                  className="inline-flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white font-black py-3 px-8 rounded-full transition shadow-sm"
+                  type="button"
                 >
-                  Load More Projects <FaArrowRight className="ml-2" />
+                  Load More <FaArrowRight className="ml-2" />
                 </button>
               </div>
             )}
@@ -1035,14 +1288,51 @@ const Projects = () => {
         )}
       </section>
 
-      {/* Process */}
-      <section className="py-20 md:py-24 px-6 bg-gray-950 text-white mt-24">
+      {/* Tech stack */}
+      <section className="py-20 px-6 bg-white mt-16 border-t border-gray-100">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-extrabold">How These Projects Are Built</h2>
-            <p className="text-gray-400 mt-4 max-w-2xl mx-auto text-lg">
-              A workflow focused on planning, responsiveness, launch quality and long-term usability.
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900">
+              Tech Stack Highlights
+            </h2>
+            <p className="text-gray-500 mt-3 max-w-2xl mx-auto text-lg font-medium">
+              The core technologies powering these applications.
             </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
+            {topTechStacks.map((item, index) => (
+              <motion.button
+                key={item.name}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                transition={{ delay: index * 0.05 }}
+                className="bg-gray-50 rounded-2xl border border-gray-100 p-5 text-center hover:bg-blue-50 hover:border-blue-200 hover:shadow-md transition cursor-pointer group"
+                onClick={() => {
+                  setSelectedTech(item.name);
+                  document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                type="button"
+              >
+                <div className="text-2xl text-blue-400 group-hover:text-blue-600 flex justify-center mb-3 transition">
+                  <FaLayerGroup />
+                </div>
+                <h3 className="text-sm font-black text-gray-900">{item.name}</h3>
+                <p className="text-xs text-gray-500 font-bold mt-1">{item.count} items</p>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Process */}
+      <section className="py-20 md:py-24 px-6 bg-slate-950 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-5xl font-black">How We Build</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
@@ -1054,87 +1344,57 @@ const Projects = () => {
                 viewport={{ once: true }}
                 variants={fadeUp}
                 transition={{ delay: index * 0.08 }}
-                className="bg-white/5 border border-white/10 rounded-3xl p-7 hover:border-blue-400/40 transition"
+                className="bg-white/5 border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition group"
               >
-                <div className="w-14 h-14 rounded-2xl bg-white/10 text-blue-300 flex items-center justify-center text-2xl mb-5">
+                <div className="w-14 h-14 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl mb-5">
                   {item.icon}
                 </div>
-                <div className="text-sm font-bold tracking-[0.2em] text-blue-300 mb-3">
-                  STEP {item.step}
+                <div className="text-xs font-black tracking-widest text-blue-400 mb-3 uppercase">
+                  Step {item.step}
                 </div>
-                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">{item.desc}</p>
+                <h3 className="text-xl font-bold mb-3 text-white">{item.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed font-medium">
+                  {item.desc}
+                </p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Trust / Feature blocks */}
-      <section className="py-20 md:py-24 px-6 bg-white">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              icon: <FaUsers />,
-              title: 'Client Work Included',
-              desc: 'Portfolio now showcases personal projects, educational builds and real client websites together.',
-            },
-            {
-              icon: <FaLaptopCode />,
-              title: 'Multi-Stack Portfolio',
-              desc: 'MERN, Django and custom client work are organized into one structured responsive portfolio.',
-            },
-            {
-              icon: <FaGlobe />,
-              title: 'Live Link Ready',
-              desc: 'Projects with valid live URLs automatically show direct action buttons for quick access.',
-            },
-          ].map((item, index) => (
-            <motion.div
-              key={item.title}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              transition={{ delay: index * 0.08 }}
-              className="bg-gray-50 border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-xl transition"
-            >
-              <div className="text-3xl text-blue-600 mb-5">{item.icon}</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
       {/* Testimonials */}
-      <section className="py-20 md:py-24 px-6 bg-gray-50 border-y border-gray-100">
+      <section className="py-20 md:py-24 px-6 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900">
               What Clients Say
             </h2>
-            <p className="text-gray-600 mt-3 max-w-2xl mx-auto text-lg">
-              A strong portfolio feels even better when paired with proof and trust signals.
+            <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-lg font-medium">
+              Real feedback from clients who trusted us with their digital products.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {testimonials.map((item, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((test, index) => (
               <motion.div
-                key={item.name + index}
+                key={index}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeUp}
                 transition={{ delay: index * 0.08 }}
-                className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-xl transition"
+                className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 shadow-sm relative"
               >
-                <FaQuoteLeft className="text-3xl text-blue-200 mb-5" />
-                <p className="text-gray-700 leading-relaxed mb-6">{item.quote}</p>
-                <div className="pt-5 border-t border-gray-100">
-                  <h4 className="font-bold text-gray-900">{item.name}</h4>
-                  <p className="text-sm text-blue-600 font-medium">{item.role}</p>
+                <FaQuoteLeft className="text-4xl text-blue-200 absolute top-8 right-8" />
+                <p className="text-gray-700 italic mb-8 relative z-10">{test.quote}</p>
+                <div className="flex items-center gap-4 border-t border-gray-200 pt-6">
+                  <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-black text-xl">
+                    {test.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900">{test.name}</h4>
+                    <p className="text-sm text-blue-600 font-semibold">{test.role}</p>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -1143,66 +1403,233 @@ const Projects = () => {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 md:py-24 px-6 bg-white">
-        <div className="max-w-5xl mx-auto">
+      <section className="py-20 md:py-24 px-6 bg-gray-50 border-b border-gray-100">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-gray-600 mt-3 text-lg">
-              Common questions about this advanced portfolio page.
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900">Project FAQs</h2>
+            <p className="text-gray-600 mt-4 text-lg font-medium">
+              Common questions about the development process and deliverables.
             </p>
           </div>
 
           <div className="space-y-4">
             {faqs.map((faq, index) => (
-              <motion.details
+              <motion.div
                 key={index}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeUp}
                 transition={{ delay: index * 0.05 }}
-                className="bg-gray-50 rounded-2xl border border-gray-200 p-5 shadow-sm"
+                className={`bg-white border rounded-2xl overflow-hidden transition-colors duration-300 ${
+                  activeFaq === index
+                    ? 'border-blue-500 shadow-md'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
               >
-                <summary className="list-none cursor-pointer flex items-center justify-between gap-4 font-bold text-gray-900">
-                  <span>{faq.q}</span>
-                  <span className="text-blue-600 text-xl">+</span>
-                </summary>
-                <p className="mt-3 text-gray-600 leading-relaxed text-sm">{faq.a}</p>
-              </motion.details>
+                <button
+                  onClick={() => setActiveFaq(activeFaq === index ? null : index)}
+                  className="w-full text-left p-6 flex justify-between items-center focus:outline-none"
+                  type="button"
+                >
+                  <span className="font-bold text-gray-900 text-lg pr-4 inline-flex items-center">
+                    <FaQuestionCircle className="mr-3 text-blue-600" />
+                    {faq.q}
+                  </span>
+                  <span
+                    className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full ${
+                      activeFaq === index
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    {activeFaq === index ? <FaMinus size={12} /> : <FaPlus size={12} />}
+                  </span>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {activeFaq === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="px-6 pb-6 text-gray-600 font-medium"
+                    >
+                      {faq.a}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="max-w-5xl mx-auto text-center mt-16 px-6">
-        <div className="bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 text-white rounded-[2rem] p-10 md:p-16 shadow-2xl">
-          <h2 className="text-3xl md:text-5xl font-extrabold mb-6">
-            Want your project featured here next?
-          </h2>
-          <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            Let’s build a fast, modern and responsive website or application that solves a real business problem.
-          </p>
-
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
-              to="/contact"
-              className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-bold text-lg py-4 px-10 rounded-full transition shadow-xl"
-            >
-              Book a Free Strategy Call <FaArrowRight className="ml-3" />
-            </Link>
-
-            <Link
-              to="/services"
-              className="inline-flex items-center justify-center border border-gray-500 hover:border-white text-white font-bold text-lg py-4 px-10 rounded-full transition"
-            >
-              Explore Services
-            </Link>
+      <section className="max-w-5xl mx-auto text-center mt-20 px-6">
+        <div className="bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-[2.5rem] p-12 md:p-20 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px]"></div>
+          <div className="relative z-10">
+            <h2 className="text-4xl md:text-5xl font-black mb-6">
+              Ready to start your project?
+            </h2>
+            <p className="text-blue-100 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-medium">
+              Let&apos;s build a fast, modern and responsive application that solves real business challenges.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link
+                to="/contact"
+                className="bg-white text-blue-700 hover:bg-gray-50 font-black text-lg py-4 px-10 rounded-full transition shadow-xl inline-flex items-center justify-center"
+              >
+                Discuss Your Idea <FaArrowRight className="ml-3" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Quick View Modal */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div
+            className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50"
+            onClick={closeProject}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white w-full max-w-5xl rounded-[2rem] shadow-2xl overflow-hidden max-h-[92vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.96, y: 18 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 18 }}
+            >
+              <div className="relative h-64 md:h-96 bg-gray-100">
+                <img
+                  src={selectedProject.img}
+                  alt={selectedProject.title}
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={closeProject}
+                  className="absolute top-4 right-4 bg-white text-gray-700 hover:text-red-500 rounded-full w-11 h-11 flex items-center justify-center shadow-lg"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              <div className="p-6 md:p-8 lg:p-10">
+                <div className="flex flex-wrap gap-3 mb-5">
+                  <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+                    {selectedProject.category}
+                  </span>
+                  <span
+                    className={`border px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusClasses(
+                      selectedProject.status
+                    )}`}
+                  >
+                    {selectedProject.status}
+                  </span>
+                  <span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+                    {selectedProject.source === 'database' ? 'Admin Project' : 'Portfolio Project'}
+                  </span>
+                </div>
+
+                <h3 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
+                  {selectedProject.title}
+                </h3>
+
+                <p className="text-gray-600 leading-relaxed text-base md:text-lg mb-8">
+                  {selectedProject.desc}
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                  {[
+                    {
+                      icon: <FaCode />,
+                      label: 'Tech Used',
+                      value: `${selectedProject.tech.length || 0} tools`,
+                    },
+                    {
+                      icon: <FaGlobe />,
+                      label: 'Live Access',
+                      value: hasValidLink(selectedProject.links?.live) ? 'Available' : 'Not Added',
+                    },
+                    {
+                      icon: <FaServer />,
+                      label: 'Project Type',
+                      value: selectedProject.category,
+                    },
+                    {
+                      icon: <FaUsers />,
+                      label: 'Status',
+                      value: selectedProject.status,
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className="bg-gray-50 border border-gray-100 rounded-2xl p-4"
+                    >
+                      <div className="text-blue-600 text-xl mb-2">{item.icon}</div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                        {item.label}
+                      </p>
+                      <p className="text-sm font-semibold text-gray-900 mt-1">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {selectedProject.tech.map((tech) => (
+                    <button
+                      key={tech}
+                      type="button"
+                      onClick={() => {
+                        closeProject();
+                        setSelectedTech(tech);
+                        document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="bg-purple-50 text-purple-700 border border-purple-100 px-3 py-1.5 rounded-full text-xs font-bold hover:bg-purple-100 transition"
+                    >
+                      {tech}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {hasValidLink(selectedProject.links?.live) && (
+                    <a
+                      href={selectedProject.links.live}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full transition"
+                    >
+                      Visit Live Project <FaExternalLinkAlt className="ml-2" />
+                    </a>
+                  )}
+
+                  {hasValidLink(selectedProject.links?.repo) ? (
+                    <a
+                      href={selectedProject.links.repo}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center border border-gray-300 hover:border-gray-500 text-gray-900 font-bold py-4 px-8 rounded-full transition"
+                    >
+                      View Repository <FaGithub className="ml-2" />
+                    </a>
+                  ) : (
+                    <div className="inline-flex items-center justify-center border border-gray-200 bg-gray-50 text-gray-500 font-bold py-4 px-8 rounded-full">
+                      Repository Private
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

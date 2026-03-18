@@ -1,8 +1,7 @@
-// frontend/src/pages/Blog.jsx
-import React, { useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
-import api from "../api/client";
+import React, { useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import api from '../api/client';
 import {
   FaSearch,
   FaArrowRight,
@@ -20,99 +19,123 @@ import {
   FaFilter,
   FaFire,
   FaLightbulb,
-} from "react-icons/fa";
+} from 'react-icons/fa';
+
+const fallbackHeroImage =
+  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1920&q=80';
 
 const fallbackBlogs = [
   {
-    _id: "f1",
-    title: "How to Build a High-Converting Business Website in 2026",
+    id: 'f1',
+    title: 'How to Build a High-Converting Business Website in 2026',
     content:
-      "A strong business website is no longer just about design. It needs clear messaging, fast loading speed, mobile responsiveness, SEO-friendly structure, trust elements, strategic CTAs and lead capture systems. Businesses that align design with conversion usually get better quality inquiries and stronger brand trust.",
-    category: "Web Development",
-    author: "Techvera Team",
-    createdAt: "2026-02-10T10:00:00.000Z",
-    tags: ["React", "UI/UX", "Conversion", "Business Website"],
+      'A strong business website is no longer just about design. It needs clear messaging, fast loading speed, mobile responsiveness, SEO-friendly structure, trust elements, strategic CTAs and lead capture systems. Businesses that align design with conversion usually get better quality inquiries and stronger brand trust.',
+    category: 'Web Development',
+    author: 'Techvera Team',
+    createdAt: '2026-02-10T10:00:00.000Z',
+    tags: ['React', 'UI/UX', 'Conversion', 'Business Website'],
   },
   {
-    _id: "f2",
-    title: "SEO Basics Every Small Business Should Understand",
+    id: 'f2',
+    title: 'SEO Basics Every Small Business Should Understand',
     content:
-      "SEO helps businesses attract high-intent visitors without depending only on paid ads. The basics include keyword targeting, technical site health, on-page optimization, content clarity, internal linking and user-focused structure. When done correctly, SEO compounds over time and improves long-term visibility.",
-    category: "SEO",
-    author: "Techvera Team",
-    createdAt: "2026-02-18T09:30:00.000Z",
-    tags: ["SEO", "Organic Growth", "Keywords", "Content"],
+      'SEO helps businesses attract high-intent visitors without depending only on paid ads. The basics include keyword targeting, technical site health, on-page optimization, content clarity, internal linking and user-focused structure. When done correctly, SEO compounds over time and improves long-term visibility.',
+    category: 'SEO',
+    author: 'Techvera Team',
+    createdAt: '2026-02-18T09:30:00.000Z',
+    tags: ['SEO', 'Organic Growth', 'Keywords', 'Content'],
   },
   {
-    _id: "f3",
-    title: "Meta Ads vs Google Ads: Which One Should You Start With?",
+    id: 'f3',
+    title: 'Meta Ads vs Google Ads: Which One Should You Start With?',
     content:
-      "Both ad platforms can work, but the better choice depends on buyer intent, product type, sales cycle and creative strength. Google Ads usually captures demand while Meta Ads can help create demand. Businesses should first decide their goal, funnel stage and budget before choosing a platform.",
-    category: "Performance Marketing",
-    author: "Techvera Team",
-    createdAt: "2026-02-25T12:00:00.000Z",
-    tags: ["Meta Ads", "Google Ads", "PPC", "Marketing"],
+      'Both ad platforms can work, but the better choice depends on buyer intent, product type, sales cycle and creative strength. Google Ads usually captures demand while Meta Ads can help create demand. Businesses should first decide their goal, funnel stage and budget before choosing a platform.',
+    category: 'Performance Marketing',
+    author: 'Techvera Team',
+    createdAt: '2026-02-25T12:00:00.000Z',
+    tags: ['Meta Ads', 'Google Ads', 'PPC', 'Marketing'],
   },
   {
-    _id: "f4",
-    title: "Why Responsive Design Still Matters for Every Brand",
+    id: 'f4',
+    title: 'Why Responsive Design Still Matters for Every Brand',
     content:
-      "Most users now browse on smaller screens first, which means every page must adapt smoothly across devices. Responsive design improves readability, accessibility, user confidence and engagement. It also reduces friction during navigation, which can positively affect conversion performance.",
-    category: "UI/UX",
-    author: "Techvera Team",
-    createdAt: "2026-03-01T11:45:00.000Z",
-    tags: ["Responsive Design", "Mobile", "UX", "Frontend"],
+      'Most users now browse on smaller screens first, which means every page must adapt smoothly across devices. Responsive design improves readability, accessibility, user confidence and engagement. It also reduces friction during navigation, which can positively affect conversion performance.',
+    category: 'UI/UX',
+    author: 'Techvera Team',
+    createdAt: '2026-03-01T11:45:00.000Z',
+    tags: ['Responsive Design', 'Mobile', 'UX', 'Frontend'],
   },
   {
-    _id: "f5",
-    title: "Content Marketing That Actually Supports Sales",
+    id: 'f5',
+    title: 'Content Marketing That Actually Supports Sales',
     content:
-      "Content works best when it solves buyer questions, builds authority and moves readers toward the next action. Strong content marketing is not only about publishing blogs. It includes strategic landing page copy, thought leadership, educational posts and clear CTAs that connect traffic to business goals.",
-    category: "Content Marketing",
-    author: "Techvera Team",
-    createdAt: "2026-03-04T08:10:00.000Z",
-    tags: ["Content", "Copywriting", "Lead Generation", "Sales"],
+      'Content works best when it solves buyer questions, builds authority and moves readers toward the next action. Strong content marketing is not only about publishing blogs. It includes strategic landing page copy, thought leadership, educational posts and clear CTAs that connect traffic to business goals.',
+    category: 'Content Marketing',
+    author: 'Techvera Team',
+    createdAt: '2026-03-04T08:10:00.000Z',
+    tags: ['Content', 'Copywriting', 'Lead Generation', 'Sales'],
   },
   {
-    _id: "f6",
-    title: "What Makes a Good Digital Funnel for Service Businesses",
+    id: 'f6',
+    title: 'What Makes a Good Digital Funnel for Service Businesses',
     content:
-      "A good digital funnel guides visitors from awareness to action through relevant messaging, landing pages, proof, offers and follow-up systems. Service businesses often improve lead quality by combining ads, trust-building content, conversion-focused pages and WhatsApp or email follow-up automations.",
-    category: "Lead Generation",
-    author: "Techvera Team",
-    createdAt: "2026-03-06T07:15:00.000Z",
-    tags: ["Funnels", "Lead Generation", "CRO", "Automation"],
+      'A good digital funnel guides visitors from awareness to action through relevant messaging, landing pages, proof, offers and follow-up systems. Service businesses often improve lead quality by combining ads, trust-building content, conversion-focused pages and WhatsApp or email follow-up automations.',
+    category: 'Lead Generation',
+    author: 'Techvera Team',
+    createdAt: '2026-03-06T07:15:00.000Z',
+    tags: ['Funnels', 'Lead Generation', 'CRO', 'Automation'],
   },
 ];
 
 const Blog = () => {
+  const [bannerImg, setBannerImg] = useState('');
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedTag, setSelectedTag] = useState("All");
-  const [sortBy, setSortBy] = useState("latest");
+  const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedTag, setSelectedTag] = useState('All');
+  const [sortBy, setSortBy] = useState('latest');
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [visibleCount, setVisibleCount] = useState(6);
-
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [subscribeMessage, setSubscribeMessage] = useState("");
+  const [subscribeMessage, setSubscribeMessage] = useState('');
 
   useEffect(() => {
-    const fetchBlogs = async () => {
+    const fetchBlogPageData = async () => {
       try {
-        const res = await api.get("/blogs");
-        setBlogs(Array.isArray(res.data) ? res.data : []);
+        const [blogsRes, pageImagesRes] = await Promise.allSettled([
+          api.get('/blogs'),
+          api.get('/pageImages'),
+        ]);
+
+        if (blogsRes.status === 'fulfilled' && Array.isArray(blogsRes.value?.data)) {
+          setBlogs(blogsRes.value.data);
+        }
+
+        if (
+          pageImagesRes.status === 'fulfilled' &&
+          Array.isArray(pageImagesRes.value?.data)
+        ) {
+          const banner = pageImagesRes.value.data.find(
+            (img) =>
+              img?.title?.toLowerCase() === 'blog' ||
+              img?.page?.toLowerCase() === 'blog'
+          );
+
+          if (banner?.imageUrl) {
+            setBannerImg(banner.imageUrl);
+          }
+        }
       } catch (error) {
-        console.error(error);
+        console.error('Blog page fetch error:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchBlogs();
+
+    fetchBlogPageData();
   }, []);
 
   useEffect(() => {
@@ -124,7 +147,7 @@ const Blog = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  const getReadTime = (content = "") => {
+  const getReadTime = (content = '') => {
     const words = content.trim().split(/\s+/).filter(Boolean).length;
     const mins = Math.max(1, Math.ceil(words / 180));
     return `${mins} min read`;
@@ -134,68 +157,61 @@ const Blog = () => {
     const source = blogs.length > 0 ? blogs : fallbackBlogs;
 
     return source.map((blog, index) => ({
-      _id: blog._id || `blog-${index}`,
-      title: blog?.title || "Untitled Article",
-      content: blog?.content || "Content coming soon.",
-      category: blog?.category || "General",
-      author: blog?.author || "Admin",
+      id: blog?._id || blog?.id || `blog-${index}`,
+      title: blog?.title || 'Untitled Article',
+      content: blog?.content || 'Content coming soon.',
+      category: blog?.category || 'General',
+      author: blog?.author || 'Admin',
       createdAt: blog?.createdAt || new Date().toISOString(),
       image:
         blog?.imageUrl ||
         blog?.image ||
-        `https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80`,
+        'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
       tags: Array.isArray(blog?.tags)
         ? blog.tags
-        : blog?.category
-        ? [blog.category]
-        : ["General"],
-      sourceType: blogs.length > 0 ? "database" : "fallback",
-      readTime: getReadTime(blog?.content || ""),
+        : [blog?.category || 'General'],
+      sourceType: blogs.length > 0 ? 'database' : 'fallback',
+      readTime: getReadTime(blog?.content || ''),
     }));
   }, [blogs]);
 
   const categories = useMemo(() => {
     const cats = new Set(normalizeBlogs.map((b) => b.category));
-    return ["All", ...Array.from(cats)];
+    return ['All', ...Array.from(cats)];
   }, [normalizeBlogs]);
 
   const tags = useMemo(() => {
     const t = new Set();
-    normalizeBlogs.forEach((b) => {
-      (b.tags || []).forEach((tag) => t.add(tag));
-    });
-    return ["All", ...Array.from(t).slice(0, 15)];
+    normalizeBlogs.forEach((b) => (b.tags || []).forEach((tag) => t.add(tag)));
+    return ['All', ...Array.from(t)].slice(0, 15);
   }, [normalizeBlogs]);
 
   const filteredBlogs = useMemo(() => {
     const q = search.trim().toLowerCase();
+
     let result = normalizeBlogs.filter((b) => {
       const matchesCategory =
-        selectedCategory === "All" || b.category === selectedCategory;
-
-      const matchesTag =
-        selectedTag === "All" || (b.tags || []).includes(selectedTag);
-
-      const haystack = `${b.title} ${b.content} ${b.author} ${b.category} ${
-        (b.tags || []).join(" ")
-      }`.toLowerCase();
-
-      const matchesSearch = q === "" || haystack.includes(q);
+        selectedCategory === 'All' || b.category === selectedCategory;
+      const matchesTag = selectedTag === 'All' || b.tags.includes(selectedTag);
+      const haystack = `${b.title} ${b.content} ${b.author} ${b.category} ${b.tags.join(
+        ' '
+      )}`.toLowerCase();
+      const matchesSearch = !q || haystack.includes(q);
 
       return matchesCategory && matchesTag && matchesSearch;
     });
 
-    if (sortBy === "latest") {
+    if (sortBy === 'latest') {
       result.sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-    } else if (sortBy === "oldest") {
+    } else if (sortBy === 'oldest') {
       result.sort(
         (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       );
-    } else if (sortBy === "title-asc") {
+    } else if (sortBy === 'title-asc') {
       result.sort((a, b) => a.title.localeCompare(b.title));
-    } else if (sortBy === "title-desc") {
+    } else if (sortBy === 'title-desc') {
       result.sort((a, b) => b.title.localeCompare(a.title));
     }
 
@@ -221,11 +237,12 @@ const Blog = () => {
   const stats = useMemo(() => {
     const uniqueCategories = new Set(normalizeBlogs.map((b) => b.category)).size;
     const uniqueAuthors = new Set(normalizeBlogs.map((b) => b.author)).size;
+
     return [
-      { number: normalizeBlogs.length, label: "Articles" },
-      { number: uniqueCategories, label: "Categories" },
-      { number: uniqueAuthors, label: "Authors" },
-      { number: tags.length - 1 > 0 ? tags.length - 1 : 0, label: "Topics" },
+      { number: normalizeBlogs.length, label: 'Articles' },
+      { number: uniqueCategories, label: 'Categories' },
+      { number: uniqueAuthors, label: 'Authors' },
+      { number: tags.length - 1 > 0 ? tags.length - 1 : 0, label: 'Topics' },
     ];
   }, [normalizeBlogs, tags]);
 
@@ -243,10 +260,11 @@ const Blog = () => {
 
   const relatedBlogs = useMemo(() => {
     if (!selectedBlog) return [];
+
     return normalizeBlogs
       .filter(
         (b) =>
-          b._id !== selectedBlog._id &&
+          b.id !== selectedBlog.id &&
           (b.category === selectedBlog.category ||
             b.tags.some((tag) => selectedBlog.tags.includes(tag)))
       )
@@ -265,24 +283,23 @@ const Blog = () => {
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
+
     if (!email.trim()) {
-      setSubscribeMessage("Please enter a valid email.");
+      setSubscribeMessage('Please enter a valid email.');
       return;
     }
 
     try {
       setSubmitting(true);
-      setSubscribeMessage("");
-
+      setSubscribeMessage('');
       // Uncomment when backend route is ready
-      // await api.post("/newsletter/subscribe", { email });
-
+      // await api.post('/newsletter/subscribe', { email });
       await new Promise((r) => setTimeout(r, 700));
-      setSubscribeMessage("Subscribed successfully!");
-      setEmail("");
+      setSubscribeMessage('Subscribed successfully!');
+      setEmail('');
     } catch (err) {
       console.error(err);
-      setSubscribeMessage("Subscription failed. Try again.");
+      setSubscribeMessage('Subscription failed. Try again.');
     } finally {
       setSubmitting(false);
     }
@@ -291,7 +308,13 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-gray-50 font-sans overflow-hidden">
       {/* Hero */}
-      <section className="relative bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 text-white py-24 md:py-32 px-6 overflow-hidden">
+      <section
+        className="relative text-white py-24 md:py-32 px-6 overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('${bannerImg || fallbackHeroImage}')`,
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-950/92 via-blue-950/88 to-gray-900/92"></div>
         <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         <div className="absolute top-0 left-0 w-72 h-72 bg-blue-500/20 blur-3xl rounded-full"></div>
         <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-500/20 blur-3xl rounded-full"></div>
@@ -319,8 +342,8 @@ const Blog = () => {
               type="button"
               onClick={() =>
                 document
-                  .getElementById("blog-listing")
-                  ?.scrollIntoView({ behavior: "smooth" })
+                  .getElementById('blog-listing')
+                  ?.scrollIntoView({ behavior: 'smooth' })
               }
               className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full text-lg transition duration-300 inline-flex items-center"
             >
@@ -348,7 +371,7 @@ const Blog = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.07 }}
             >
-              <h3 className="text-3xl md:text-5xl font-extrabold mb-2">{item.number}+</h3>
+              <h3 className="text-3xl md:text-5xl font-extrabold mb-2">{item.number}</h3>
               <p className="text-blue-100 uppercase tracking-wider text-xs md:text-sm font-semibold">
                 {item.label}
               </p>
@@ -440,6 +463,7 @@ const Blog = () => {
                   Latest hand-picked reads from Techvera Insights.
                 </p>
               </div>
+
               <div className="text-sm text-gray-500 font-medium">
                 Fresh picks for growth-focused readers
               </div>
@@ -448,7 +472,7 @@ const Blog = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {featuredBlogs.map((b, idx) => (
                 <motion.button
-                  key={b._id || idx}
+                  key={b.id || idx}
                   type="button"
                   initial={{ opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -458,12 +482,9 @@ const Blog = () => {
                   className="text-left bg-gray-50 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition overflow-hidden"
                 >
                   <div className="h-48 bg-gray-100 overflow-hidden">
-                    <img
-                      src={b.image}
-                      alt={b.title}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={b.image} alt={b.title} className="w-full h-full object-cover" />
                   </div>
+
                   <div className="p-6">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">
@@ -473,12 +494,12 @@ const Blog = () => {
                         {new Date(b.createdAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <h3 className="text-lg font-extrabold text-gray-900 mt-3">
-                      {b.title}
-                    </h3>
+
+                    <h3 className="text-lg font-extrabold text-gray-900 mt-3">{b.title}</h3>
                     <p className="text-gray-600 mt-2 text-sm leading-relaxed">
                       {b.content.slice(0, 120)}...
                     </p>
+
                     <div className="mt-4 text-sm font-semibold text-blue-600 inline-flex items-center">
                       Read now <FaArrowRight className="ml-2" />
                     </div>
@@ -490,7 +511,7 @@ const Blog = () => {
         </section>
       )}
 
-      {/* Why read / topic cards */}
+      {/* Topic cards */}
       <section className="py-20 px-6 bg-gray-50 border-y border-gray-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
@@ -506,23 +527,23 @@ const Blog = () => {
             {[
               {
                 icon: <FaLaptopCode />,
-                title: "Web Development",
-                desc: "Frontend, backend, responsive design, performance and business websites.",
+                title: 'Web Development',
+                desc: 'Frontend, backend, responsive design, performance and business websites.',
               },
               {
                 icon: <FaChartLine />,
-                title: "SEO & Growth",
-                desc: "Organic traffic, search intent, content structure and visibility strategies.",
+                title: 'SEO Growth',
+                desc: 'Organic traffic, search intent, content structure and visibility strategies.',
               },
               {
                 icon: <FaBullhorn />,
-                title: "Performance Marketing",
-                desc: "Google Ads, Meta campaigns, lead generation and ad funnel improvements.",
+                title: 'Performance Marketing',
+                desc: 'Google Ads, Meta campaigns, lead generation and ad funnel improvements.',
               },
               {
                 icon: <FaLightbulb />,
-                title: "Content & Strategy",
-                desc: "Copywriting, content systems, brand messaging and conversion thinking.",
+                title: 'Content Strategy',
+                desc: 'Copywriting, content systems, brand messaging and conversion thinking.',
               },
             ].map((item, index) => (
               <motion.div
@@ -555,9 +576,7 @@ const Blog = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-end">
               <div className="lg:col-span-2 relative">
-                <label className="text-sm font-semibold text-gray-700">
-                  Search blogs
-                </label>
+                <label className="text-sm font-semibold text-gray-700">Search blogs</label>
                 <FaSearch className="absolute left-4 top-[54px] text-gray-400" />
                 <input
                   value={search}
@@ -568,9 +587,7 @@ const Blog = () => {
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-gray-700">
-                  Category
-                </label>
+                <label className="text-sm font-semibold text-gray-700">Category</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
@@ -609,8 +626,8 @@ const Blog = () => {
                     onClick={() => setSelectedTag(tag)}
                     className={`px-4 py-2 rounded-full text-xs md:text-sm font-semibold transition ${
                       selectedTag === tag
-                        ? "bg-purple-600 text-white shadow-lg"
-                        : "bg-white text-purple-700 border border-purple-100 hover:bg-purple-50"
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-white text-purple-700 border border-purple-100 hover:bg-purple-50'
                     }`}
                   >
                     {tag}
@@ -621,17 +638,16 @@ const Blog = () => {
 
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-gray-500">
-                Showing <span className="font-semibold">{filteredBlogs.length}</span>{" "}
-                result(s)
+                Showing <span className="font-semibold">{filteredBlogs.length}</span> results
               </p>
 
               <button
                 type="button"
                 onClick={() => {
-                  setSearch("");
-                  setSelectedCategory("All");
-                  setSelectedTag("All");
-                  setSortBy("latest");
+                  setSearch('');
+                  setSelectedCategory('All');
+                  setSelectedTag('All');
+                  setSortBy('latest');
                 }}
                 className="text-sm font-semibold text-gray-700 hover:text-blue-600"
               >
@@ -669,112 +685,102 @@ const Blog = () => {
             <div className="text-center py-16">
               <div className="inline-block h-12 w-12 rounded-full border-t-4 border-blue-600 animate-spin"></div>
             </div>
+          ) : filteredBlogs.length === 0 ? (
+            <div className="text-center bg-gray-50 border border-dashed border-gray-300 rounded-3xl p-12">
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">No blogs found</h3>
+              <p className="text-gray-600 mb-6">
+                Try different keywords, category or topic filters.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch('');
+                  setSelectedCategory('All');
+                  setSelectedTag('All');
+                  setSortBy('latest');
+                }}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-full transition"
+              >
+                Reset Filters
+              </button>
+            </div>
           ) : (
             <>
-              {filteredBlogs.length === 0 ? (
-                <div className="text-center bg-gray-50 border border-dashed border-gray-300 rounded-3xl p-12">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                    No blogs found
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Try different keywords, category or topic filters.
-                  </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                {visibleBlogs.map((blog, index) => (
+                  <motion.div
+                    key={blog.id || index}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05, duration: 0.4 }}
+                    className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition flex flex-col"
+                  >
+                    <div className="h-52 bg-gray-100 overflow-hidden">
+                      <img
+                        src={blog.image}
+                        alt={blog.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <div className="p-7 flex flex-col flex-grow">
+                      <div className="flex flex-wrap items-center gap-3 text-xs mb-3">
+                        <span className="font-bold text-blue-600 uppercase tracking-widest">
+                          {blog.category}
+                        </span>
+                        <span className="text-gray-400 inline-flex items-center">
+                          <FaCalendarAlt className="mr-1" />
+                          {new Date(blog.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <h3 className="text-2xl font-bold text-gray-800 mb-3">{blog.title}</h3>
+
+                      <p className="text-gray-600 mb-5 leading-relaxed flex-grow">
+                        {blog.content.slice(0, 150)}...
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 mb-5">
+                        {blog.tags.slice(0, 3).map((tag) => (
+                          <span
+                            key={tag}
+                            className="bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1 rounded-full text-xs font-semibold"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex justify-between items-center border-t pt-4 mt-auto">
+                        <div className="text-sm text-gray-500">
+                          <span className="font-semibold text-gray-700">By {blog.author}</span>
+                          <div className="text-xs mt-1">{blog.readTime}</div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => openBlog(blog)}
+                          className="text-blue-600 font-bold hover:text-blue-700 inline-flex items-center"
+                        >
+                          Read More <FaArrowRight className="ml-2" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {visibleCount < filteredBlogs.length && (
+                <div className="text-center mt-12">
                   <button
                     type="button"
-                    onClick={() => {
-                      setSearch("");
-                      setSelectedCategory("All");
-                      setSelectedTag("All");
-                      setSortBy("latest");
-                    }}
-                    className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-full transition"
+                    onClick={() => setVisibleCount((prev) => prev + 6)}
+                    className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full transition"
                   >
-                    Reset Filters
+                    Load More Articles <FaArrowRight className="ml-2" />
                   </button>
                 </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                    {visibleBlogs.map((blog, index) => (
-                      <motion.div
-                        key={blog._id || index}
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.05, duration: 0.4 }}
-                        className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition flex flex-col"
-                      >
-                        <div className="h-52 bg-gray-100 overflow-hidden">
-                          <img
-                            src={blog.image}
-                            alt={blog.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-
-                        <div className="p-7 flex flex-col flex-grow">
-                          <div className="flex flex-wrap items-center gap-3 text-xs mb-3">
-                            <span className="font-bold text-blue-600 uppercase tracking-widest">
-                              {blog.category}
-                            </span>
-                            <span className="text-gray-400 inline-flex items-center">
-                              <FaCalendarAlt className="mr-1" />
-                              {new Date(blog.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-
-                          <h3 className="text-2xl font-bold text-gray-800 mb-3">
-                            {blog.title}
-                          </h3>
-
-                          <p className="text-gray-600 mb-5 leading-relaxed flex-grow">
-                            {blog.content.slice(0, 150)}...
-                          </p>
-
-                          <div className="flex flex-wrap gap-2 mb-5">
-                            {blog.tags.slice(0, 3).map((tag) => (
-                              <span
-                                key={tag}
-                                className="bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1 rounded-full text-xs font-semibold"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-
-                          <div className="flex justify-between items-center border-t pt-4 mt-auto">
-                            <div className="text-sm text-gray-500">
-                              <span className="font-semibold text-gray-700">
-                                By {blog.author}
-                              </span>
-                              <div className="text-xs mt-1">{blog.readTime}</div>
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => openBlog(blog)}
-                              className="text-blue-600 font-bold hover:text-blue-700 inline-flex items-center"
-                            >
-                              Read More <FaArrowRight className="ml-2" />
-                            </button>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  {visibleCount < filteredBlogs.length && (
-                    <div className="text-center mt-12">
-                      <button
-                        type="button"
-                        onClick={() => setVisibleCount((prev) => prev + 6)}
-                        className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full transition"
-                      >
-                        Load More Articles <FaArrowRight className="ml-2" />
-                      </button>
-                    </div>
-                  )}
-                </>
               )}
             </>
           )}
@@ -790,9 +796,11 @@ const Blog = () => {
                 <div className="inline-flex items-center text-sm font-semibold text-blue-200 bg-white/10 px-4 py-2 rounded-full mb-5">
                   <FaEnvelopeOpenText className="mr-2" /> Newsletter
                 </div>
+
                 <h2 className="text-3xl md:text-4xl font-extrabold">
                   Get weekly growth tips
                 </h2>
+
                 <p className="text-white/80 mt-3 max-w-xl">
                   Join our newsletter for practical marketing, SEO, web development and content strategy insights.
                 </p>
@@ -813,53 +821,61 @@ const Blog = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleSubscribe} className="bg-white/10 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-sm">
-                <label className="block text-sm font-semibold mb-3">
-                  Subscribe to updates
-                </label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    type="email"
-                    placeholder="Enter your email"
-                    className="flex-1 p-3 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                  />
-                  <button
-                    disabled={submitting}
-                    type="submit"
-                    className="px-5 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 font-bold disabled:opacity-60"
-                  >
-                    {submitting ? "Joining..." : "Join"}
-                  </button>
-                </div>
-                {subscribeMessage && (
-                  <p className="mt-4 text-sm text-white/90">{subscribeMessage}</p>
-                )}
-              </form>
+              <div>
+                <form
+                  onSubmit={handleSubscribe}
+                  className="bg-white/10 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-sm"
+                >
+                  <label className="block text-sm font-semibold mb-3">
+                    Subscribe to updates
+                  </label>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      type="email"
+                      placeholder="Enter your email..."
+                      className="flex-1 p-3 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    />
+
+                    <button
+                      disabled={submitting}
+                      type="submit"
+                      className="px-5 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 font-bold disabled:opacity-60"
+                    >
+                      {submitting ? 'Joining...' : 'Join'}
+                    </button>
+                  </div>
+
+                  {subscribeMessage && (
+                    <p className="mt-4 text-sm text-white/90">{subscribeMessage}</p>
+                  )}
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Why follow section */}
+      {/* Why follow */}
       <section className="py-20 px-6 bg-white">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
               icon: <FaChartLine />,
-              title: "Growth-Focused Content",
-              desc: "Articles are written around real business visibility, traffic, lead generation and conversion topics.",
+              title: 'Growth-Focused Content',
+              desc: 'Articles are written around real business visibility, traffic, lead generation and conversion topics.',
             },
             {
               icon: <FaLaptopCode />,
-              title: "Tech + Marketing Mix",
-              desc: "The page supports content across web development, SEO, UX, ads and digital strategy.",
+              title: 'Tech + Marketing Mix',
+              desc: 'The page supports content across web development, SEO, UX, ads and digital strategy.',
             },
             {
               icon: <FaFire />,
-              title: "Always Discoverable",
-              desc: "Search, category filters, tags and featured sections make browsing much easier for readers.",
+              title: 'Always Discoverable',
+              desc: 'Search, category filters, tags and featured sections make browsing much easier for readers.',
             },
           ].map((item, index) => (
             <motion.div
@@ -894,20 +910,20 @@ const Blog = () => {
           <div className="space-y-4">
             {[
               {
-                q: "Is this page dynamic?",
-                a: "Yes. It fetches blogs from your /blogs API endpoint and falls back to sample content if the database is empty.",
+                q: 'Is this page dynamic?',
+                a: 'Yes. It fetches blogs from your blogs API endpoint and falls back to sample content if the database is empty.',
               },
               {
-                q: "Can I search and filter articles?",
-                a: "Yes. The page includes search, category filters, tag filters and sorting options.",
+                q: 'Can I search and filter articles?',
+                a: 'Yes. The page includes search, category filters, tag filters and sorting options.',
               },
               {
-                q: "Can I open full article content in a modal?",
-                a: "Yes. Clicking a blog card opens the full blog details in a responsive modal.",
+                q: 'Can I open full article content in a modal?',
+                a: 'Yes. Clicking a blog card opens the full blog details in a responsive modal.',
               },
               {
-                q: "Can I connect newsletter subscribe to backend later?",
-                a: "Yes. You only need to uncomment and connect the newsletter API route in handleSubscribe.",
+                q: 'Can I connect newsletter subscribe to backend later?',
+                a: 'Yes. You only need to uncomment and connect the newsletter API route in handleSubscribe.',
               },
             ].map((faq, index) => (
               <motion.details
@@ -936,6 +952,7 @@ const Blog = () => {
           <h2 className="text-3xl md:text-5xl font-extrabold mb-6">
             Want content like this for your brand?
           </h2>
+
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto mb-10">
             We help businesses with content strategy, SEO, web development and full digital growth systems.
           </p>
@@ -1019,8 +1036,7 @@ const Blog = () => {
                       key={tag}
                       className="bg-purple-50 text-purple-700 border border-purple-100 px-3 py-1 rounded-full text-xs font-semibold inline-flex items-center"
                     >
-                      <FaTag className="mr-2" />
-                      {tag}
+                      <FaTag className="mr-2" /> {tag}
                     </span>
                   ))}
                 </div>
@@ -1031,13 +1047,12 @@ const Blog = () => {
 
                 {relatedBlogs.length > 0 && (
                   <div className="mt-10 pt-8 border-t border-gray-100">
-                    <h4 className="text-xl font-bold text-gray-900 mb-5">
-                      Related Articles
-                    </h4>
+                    <h4 className="text-xl font-bold text-gray-900 mb-5">Related Articles</h4>
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {relatedBlogs.map((blog) => (
                         <button
-                          key={blog._id}
+                          key={blog.id}
                           type="button"
                           onClick={() => openBlog(blog)}
                           className="text-left bg-gray-50 border border-gray-100 rounded-2xl p-4 hover:shadow-md transition"
@@ -1045,9 +1060,7 @@ const Blog = () => {
                           <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">
                             {blog.category}
                           </p>
-                          <h5 className="text-sm font-bold text-gray-900 mb-2">
-                            {blog.title}
-                          </h5>
+                          <h5 className="text-sm font-bold text-gray-900 mb-2">{blog.title}</h5>
                           <p className="text-xs text-gray-600 leading-relaxed">
                             {blog.content.slice(0, 80)}...
                           </p>

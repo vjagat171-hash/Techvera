@@ -1,7 +1,9 @@
+// frontend/src/pages/admin/AdminDashboard.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/client';
-import { FaProjectDiagram, FaBlog, FaUsers, FaCogs, FaSignOutAlt, FaTimes, FaQuoteLeft, FaIdBadge } from 'react-icons/fa';
+// ✅ Step 1: Added FaImage import for Page Banners
+import { FaProjectDiagram, FaBlog, FaUsers, FaCogs, FaSignOutAlt, FaTimes, FaQuoteLeft, FaIdBadge, FaImage } from 'react-icons/fa';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -13,14 +15,15 @@ const AdminDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({});
   
-  // ✅ Image Upload States
+  // Image Upload States
   const [imageFile, setImageFile] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const token = localStorage.getItem("tv_token") || localStorage.getItem("token");
 
+  // ✅ Step 2: Added 'pageImages' to isCrudTab array
   const isCrudTab = useMemo(
-    () => ['projects', 'services', 'blogs', 'team', 'testimonials'].includes(activeTab),
+    () => ['projects', 'services', 'blogs', 'team', 'testimonials', 'pageImages'].includes(activeTab),
     [activeTab]
   );
 
@@ -55,7 +58,6 @@ const AdminDashboard = () => {
     fetchData();
   }, [activeTab]);
 
-  // ✅ DELETE FIX
   const handleDelete = async (id) => {
     if(!window.confirm(`Are you sure you want to delete this?`)) return;
     try {
@@ -73,7 +75,7 @@ const AdminDashboard = () => {
 
   const openModal = () => {
     setFormData({});
-    setImageFile(null); // Clear previous file
+    setImageFile(null); 
     setShowModal(true);
   };
 
@@ -81,14 +83,13 @@ const AdminDashboard = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ IMAGE UPLOAD & SAVE LOGIC
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (!isCrudTab) return;
       let payload = { ...formData };
 
-      // 1. Upload Image to Cloudinary if selected
+      // Upload Image to Cloudinary if selected
       if (imageFile) {
         setUploadingImage(true);
         const imgData = new FormData();
@@ -102,12 +103,12 @@ const AdminDashboard = () => {
           payload.image = uploadRes.data.imageUrl;
         } else {
           payload.imageUrl = uploadRes.data.imageUrl;
-          payload.image = uploadRes.data.imageUrl; // fallback
+          payload.image = uploadRes.data.imageUrl; 
         }
         setUploadingImage(false);
       }
 
-      // 2. Format Array fields
+      // Format Array fields
       if (activeTab === 'services' && typeof payload.features === 'string') {
         payload.features = payload.features.split(',').map(item => item.trim()).filter(Boolean);
       }
@@ -118,13 +119,13 @@ const AdminDashboard = () => {
         payload.tags = payload.tags.split(',').map(item => item.trim()).filter(Boolean);
       }
 
-      // 3. Save to DB
+      // Save to DB
       await api.post(`/${activeTab}`, payload);
       setShowModal(false); 
       setFormData({});
       setImageFile(null);     
       fetchData();         
-      alert(`${activeTab.slice(0, -1)} published successfully!`);
+      alert(`${activeTab === 'pageImages' ? 'Page Banner' : activeTab.slice(0, -1)} published successfully!`);
     } catch (error) {
       console.error(error);
       setUploadingImage(false);
@@ -142,6 +143,26 @@ const AdminDashboard = () => {
   );
 
   const renderFormFields = () => {
+    // ✅ Step 3: PAGE IMAGES (BANNERS) Form added
+    if (activeTab === 'pageImages') {
+      return (
+        <>
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Select Page</label>
+          <select name="title" onChange={handleInputChange} required className="w-full p-3 border border-slate-200 rounded-xl mb-6 focus:ring-2 focus:ring-blue-500 bg-slate-50 text-slate-900 font-bold">
+            <option value="">-- Choose a Page --</option>
+            <option value="Home">Home Page</option>
+            <option value="About">About Page</option>
+            <option value="Services">Services Page</option>
+            <option value="Projects">Projects Page</option>
+            <option value="Blog">Blog Page</option>
+            <option value="Contact">Contact Page</option>
+          </select>
+          <ImageInput />
+        </>
+      );
+    }
+
+    // Projects
     if (activeTab === 'projects') {
       return (
         <>
@@ -165,6 +186,7 @@ const AdminDashboard = () => {
         </>
       );
     }
+    // Blogs
     if (activeTab === 'blogs') {
       return (
         <>
@@ -179,7 +201,7 @@ const AdminDashboard = () => {
         </>
       );
     }
-    // SERVICES
+    // Services
     if (activeTab === 'services') {
       return (
         <>
@@ -190,7 +212,7 @@ const AdminDashboard = () => {
         </>
       );
     }
-    // TEAM
+    // Team
     if (activeTab === 'team') {
       return (
         <>
@@ -201,7 +223,7 @@ const AdminDashboard = () => {
         </>
       );
     }
-    // TESTIMONIALS
+    // Testimonials
     if (activeTab === 'testimonials') {
       return (
         <>
@@ -226,6 +248,10 @@ const AdminDashboard = () => {
           TECHVERA <span className="text-xs font-bold text-slate-500 block mt-1 tracking-widest uppercase">Admin System</span>
         </div>
         <nav className="mt-6 flex flex-col space-y-2 px-5 overflow-y-auto pb-24 custom-scrollbar">
+          
+          {/* ✅ Step 4: Added NavButton for Page Banners */}
+          <NavButton tab="pageImages" icon={<FaImage />} label="Page Banners" />
+          
           <NavButton tab="projects" icon={<FaProjectDiagram />} label="Projects" />
           <NavButton tab="services" icon={<FaCogs />} label="Services" />
           <NavButton tab="blogs" icon={<FaBlog />} label="Blogs" />
@@ -244,12 +270,14 @@ const AdminDashboard = () => {
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <header className="bg-white shadow-sm border-b border-slate-200 p-8 flex justify-between items-center z-10">
           <div>
-            <h2 className="text-3xl font-black text-slate-900 capitalize">{activeTab} Database</h2>
+            <h2 className="text-3xl font-black text-slate-900 capitalize">
+              {activeTab === 'pageImages' ? 'Page Banners' : activeTab} Database
+            </h2>
             <p className="text-slate-500 text-sm mt-1 font-medium">Control the data shown on your live website.</p>
           </div>
           {isCrudTab && (
             <button onClick={openModal} className="bg-slate-900 text-white px-6 py-3.5 rounded-full shadow-lg hover:bg-blue-600 transition font-bold flex items-center">
-              <span className="text-xl mr-2 leading-none">+</span> Add {activeTab.slice(0, -1)}
+              <span className="text-xl mr-2 leading-none">+</span> Add {activeTab === 'pageImages' ? 'Banner' : activeTab.slice(0, -1)}
             </button>
           )}
         </header>
@@ -303,10 +331,17 @@ const AdminDashboard = () => {
                       data.map((item) => (
                         <tr key={item._id} className="hover:bg-slate-50/50 transition border-b border-slate-100">
                           <td className="py-5 px-6 text-left">
-                            <div className="font-bold text-slate-900 text-lg flex items-center gap-3">
-                              {/* Show tiny preview if image exists */}
-                              {(item.imageUrl || item.image) && <img src={item.imageUrl || item.image} alt="preview" className="w-10 h-10 object-cover rounded-lg border border-slate-200" />}
-                              {item.title || item.name}
+                            <div className="font-bold text-slate-900 text-lg flex items-center gap-4">
+                              {/* Better preview formatting */}
+                              {(item.imageUrl || item.image) && (
+                                <div className="w-16 h-12 rounded overflow-hidden border border-slate-200 flex-shrink-0">
+                                  <img src={item.imageUrl || item.image} alt="preview" className="w-full h-full object-cover" />
+                                </div>
+                              )}
+                              <div>
+                                {item.title || item.name}
+                                {activeTab === 'pageImages' && <div className="text-xs text-blue-600 uppercase tracking-widest mt-1">Page Banner</div>}
+                              </div>
                             </div>
                           </td>
                           <td className="py-5 px-6 text-right">
@@ -326,7 +361,9 @@ const AdminDashboard = () => {
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
             <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-xl relative transform transition-all">
               <button onClick={() => setShowModal(false)} className="absolute top-6 right-6 text-slate-400 hover:text-red-500 bg-slate-50 p-3 rounded-full"><FaTimes /></button>
-              <h3 className="text-3xl font-black mb-2 capitalize">Add New {activeTab.slice(0, -1)}</h3>
+              <h3 className="text-3xl font-black mb-2 capitalize">
+                Add New {activeTab === 'pageImages' ? 'Banner' : activeTab.slice(0, -1)}
+              </h3>
               <p className="text-slate-500 text-sm mb-6">Fill details and upload image. It reflects live instantly.</p>
               
               <form onSubmit={handleSubmit} className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">

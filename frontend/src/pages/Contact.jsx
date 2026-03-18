@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import api from '../api/client';
 import {
@@ -24,6 +24,9 @@ import {
   FaQuestionCircle,
 } from 'react-icons/fa';
 
+const fallbackHeroImage =
+  'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=1920&q=80';
+
 const Contact = () => {
   const initialForm = {
     name: '',
@@ -37,6 +40,7 @@ const Contact = () => {
     message: '',
   };
 
+  const [bannerImg, setBannerImg] = useState('');
   const [formData, setFormData] = useState(initialForm);
   const [status, setStatus] = useState({ type: '', msg: '' });
   const [loading, setLoading] = useState(false);
@@ -46,6 +50,29 @@ const Contact = () => {
     hidden: { opacity: 0, y: 22 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
+
+  useEffect(() => {
+    const fetchBanner = async () => {
+      try {
+        const res = await api.get('/pageImages');
+        const banner = Array.isArray(res.data)
+          ? res.data.find(
+              (img) =>
+                img?.title?.toLowerCase() === 'contact' ||
+                img?.page?.toLowerCase() === 'contact'
+            )
+          : null;
+
+        if (banner?.imageUrl) {
+          setBannerImg(banner.imageUrl);
+        }
+      } catch (error) {
+        console.error('Contact banner fetch error:', error);
+      }
+    };
+
+    fetchBanner();
+  }, []);
 
   const services = [
     {
@@ -220,6 +247,9 @@ const Contact = () => {
       });
       setFormData(initialForm);
       setActiveService('All');
+      setTimeout(() => {
+        setStatus({ type: '', msg: '' });
+      }, 3000);
     } catch (error) {
       setStatus({
         type: 'error',
@@ -233,7 +263,13 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-gray-50 font-sans overflow-hidden pb-24">
       {/* Hero */}
-      <section className="relative bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 text-white py-24 md:py-32 px-6 overflow-hidden">
+      <section
+        className="relative text-white py-24 md:py-32 px-6 overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('${bannerImg || fallbackHeroImage}')`,
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-950/92 via-blue-950/88 to-gray-900/92"></div>
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
         <div className="absolute top-0 left-0 w-72 h-72 bg-blue-500/20 blur-3xl rounded-full"></div>
         <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-500/20 blur-3xl rounded-full"></div>
