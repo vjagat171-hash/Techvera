@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import nodemailer from "nodemailer"; // Nodemailer import kiya
 import { connectDB } from "./config/db.js";
 
 // Routes imports
@@ -23,6 +24,45 @@ app.use(helmet());
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "5mb" }));
 app.use(morgan("dev"));
+
+// --- EMAIL / LEADS ROUTE LOGIC ---
+app.post("/api/leads", async (req, res) => {
+  const { name, email, phone, company, service, budget, timeline, message } = req.body;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_APP_PASSWORD, // Aapka 16-digit password (no spaces)
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.CONTACT_RECEIVER,
+      subject: `🔥 New Lead from Website: ${name}`,
+      html: `
+        <h3>New Contact Form Submission</h3>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Company:</strong> ${company || "N/A"}</p>
+        <p><strong>Service Needed:</strong> ${service || "N/A"}</p>
+        <p><strong>Budget:</strong> ${budget || "N/A"}</p>
+        <p><strong>Timeline:</strong> ${timeline || "N/A"}</p>
+        <p><strong>Message:</strong><br/> ${message}</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ ok: true, message: "Audit request received successfully!" });
+  } catch (error) {
+    console.error("Email sending error:", error);
+    res.status(500).json({ error: "Failed to send email." });
+  }
+});
+// --------------------------------
 
 // Health route
 app.get("/api/health", (req, res) => {
