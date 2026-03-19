@@ -29,8 +29,6 @@ import {
   SiZapier,
 } from 'react-icons/si';
 
-const founderImg = '/Author.jpg';
-
 const fallbackHeroImage =
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80';
 
@@ -176,7 +174,7 @@ const Home = () => {
   const [quickEmail, setQuickEmail] = useState('');
   const [quickSubmitStatus, setQuickSubmitStatus] = useState('');
   const [activeFaq, setActiveFaq] = useState(null);
-  const [founderSrc, setFounderSrc] = useState(founderImg);
+  const [founderSrc, setFounderSrc] = useState('/founder.jpg');
 
   const fadeUp = useMemo(
     () => ({
@@ -251,6 +249,12 @@ const Home = () => {
       await api.post('/leads', {
         name: 'Quick Roadmap Request',
         email: cleanedEmail,
+        phone: 'Not provided',
+        company: '',
+        website: '',
+        service: 'Quick Roadmap Request',
+        budget: '',
+        timeline: '',
         message: 'Requested from Home Page Top Strip.',
       });
 
@@ -582,6 +586,7 @@ const Home = () => {
                         alt={project.title || 'Project'}
                         className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
                         onError={(e) => {
+                          e.currentTarget.onerror = null;
                           e.currentTarget.src = fallbackProjectImage;
                         }}
                       />
@@ -624,47 +629,65 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-blue-600 text-white py-24 px-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-16 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="w-full md:w-1/3"
-          >
-            <div className="w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden border-8 border-blue-400 mx-auto shadow-2xl relative">
-              <img
-                src={founderSrc}
-                alt="Bhupendra Verma - Founder"
-                className="w-full h-full object-cover"
-                onError={() => setFounderSrc(fallbackFounderImage)}
-              />
-            </div>
-          </motion.div>
+      <section className="bg-gradient-to-r from-[#165DFF] via-[#246BFD] to-[#155BFF] text-white py-24 md:py-28 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_30%)]"></div>
+        <div className="absolute top-10 left-10 w-72 h-72 bg-white/10 blur-3xl rounded-full"></div>
+        <div className="absolute bottom-10 right-10 w-72 h-72 bg-black/10 blur-3xl rounded-full"></div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="w-full md:w-2/3 text-center md:text-left"
-          >
-            <FaQuoteLeft className="text-6xl text-blue-400 mb-6 mx-auto md:mx-0 opacity-60" />
-            <h3 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
-              &quot;Our goal isn&apos;t just to launch campaigns; it&apos;s to build sustainable
-              revenue engines.&quot;
-            </h3>
-            <p className="text-blue-100 text-lg md:text-xl mb-8 font-light">
-              At Techvera, we treat your business like our own. Every line of code we write and
-              every ad dollar we spend is aggressively optimized for your bottom-line growth.
-            </p>
-            <div>
-              <p className="font-bold text-2xl tracking-wide">Bhupendra</p>
-              <p className="text-blue-300 font-semibold uppercase tracking-widest text-sm mt-1">
-                Founder & Lead Strategist
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] items-center gap-12 lg:gap-16">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, x: -30 }}
+              whileInView={{ opacity: 1, scale: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="flex justify-center"
+            >
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-white/20 blur-xl scale-105"></div>
+                <div className="relative w-60 h-60 md:w-72 md:h-72 rounded-full overflow-hidden border-[6px] border-white/30 shadow-[0_20px_60px_rgba(0,0,0,0.25)] bg-white/10">
+                  <img
+                    src={founderSrc}
+                    alt="Bhupendra Verma - Founder"
+                    className="w-full h-full object-cover object-center"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      setFounderSrc(fallbackFounderImage);
+                    }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.65 }}
+              viewport={{ once: true }}
+              className="text-center md:text-left"
+            >
+              <div className="text-white/20 text-6xl md:text-7xl mb-4 flex justify-center md:justify-start">
+                <FaQuoteLeft />
+              </div>
+
+              <h3 className="text-3xl md:text-5xl font-extrabold leading-tight max-w-3xl">
+                “Our goal isn&apos;t just to launch campaigns; it&apos;s to build sustainable
+                revenue engines.”
+              </h3>
+
+              <p className="mt-6 text-blue-100/95 text-lg md:text-xl leading-relaxed max-w-2xl">
+                At Techvera, we treat your business like our own. Every line of code we write and
+                every ad dollar we spend is aggressively optimized for your bottom-line growth.
               </p>
-            </div>
-          </motion.div>
+
+              <div className="mt-8">
+                <h4 className="text-2xl md:text-3xl font-bold text-white">Bhupendra Verma</h4>
+                <p className="mt-2 text-sm md:text-base uppercase tracking-[0.25em] text-blue-200 font-semibold">
+                  Founder & Lead Strategist
+                </p>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -779,6 +802,7 @@ const Home = () => {
                 }`}
               >
                 <button
+                  type="button"
                   onClick={() => setActiveFaq(activeFaq === index ? null : index)}
                   className="w-full flex justify-between items-center p-6 text-left focus:outline-none"
                 >
@@ -791,13 +815,13 @@ const Home = () => {
                   </motion.div>
                 </button>
 
-                <AnimatePresence>
+                <AnimatePresence initial={false}>
                   {activeFaq === index && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      className="px-6 pb-6 text-slate-600 leading-relaxed"
+                      className="px-6 pb-6 text-slate-600 leading-relaxed overflow-hidden"
                     >
                       {faq.answer}
                     </motion.div>
