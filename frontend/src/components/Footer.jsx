@@ -118,7 +118,7 @@ const Footer = () => {
             </li>
             <li className="flex items-center">
               <FaEnvelope className="text-blue-500 mr-3 flex-shrink-0" />
-              <span>vjagat171@gmail.com</span>
+              <span>agencytechvera@gmail.com</span>
             </li>
           </ul>
           <Link to="/contact" className="inline-flex items-center mt-6 text-sm font-bold text-white bg-slate-800 hover:bg-blue-600 px-6 py-2.5 rounded-full transition-all duration-300 shadow-lg">
